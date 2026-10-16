@@ -1,0 +1,1 @@
+import {Nav} from '../../../components/Nav';import {LoginForm} from '../../../components/LoginForm';export default function Login(){return <><Nav/><main className="formpage"><div className="panel"><div className="eyebrow">ACESSO RESTRITO</div><h1>Painel administrativo</h1><p>Entre com seu e-mail de administrador cadastrado no Supabase.</p><LoginForm/></div></main></>}

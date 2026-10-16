@@ -1,0 +1,2 @@
+import {Nav} from '../../components/Nav';import {CaptureForm} from '../../components/CaptureForm';
+export default function Entrar(){return <><Nav/><main className="formpage"><div className="capturehead"><span className="eyebrow">OFERTAS QUE COMBINAM COM VOCÊ</span><h1>Escolha o que você<br/><span>gosta de encontrar.</span></h1><p>Selecione seus interesses e veja os convites disponíveis para os grupos. Sem adicionar pessoas automaticamente.</p></div><div className="panel"><CaptureForm/></div></main></>}
