@@ -43,7 +43,14 @@ try {
     .from('niches').select('slug,interval_minutes').order('slug');
   if (nichesError) {
     fail(`Não foi possível ler "niches" (código: ${nichesError.code || 'desconhecido'}).`);
-    console.log('  Se as tabelas ainda não foram criadas, execute a migração inicial no SQL Editor do OfertaFlow.');
+    if (nichesError.code === 'PGRST205') {
+      console.log('  PGRST205: a tabela não foi encontrada no catálogo da API (pode estar ausente ou com cache desatualizado).');
+      console.log("  No SQL Editor execute: SELECT to_regclass('public.niches');");
+      console.log("  Se retornar public.niches, execute: NOTIFY pgrst, 'reload schema';");
+      console.log('  Se retornar NULL, a tabela está ausente: consulte o SQL inicial e NÃO recrie todas as tabelas existentes.');
+    } else {
+      console.log('  Confira permissões, políticas RLS e a estrutura da tabela no SQL Editor do OfertaFlow.');
+    }
   } else {
     pass(`Banco acessível; tabela niches consultada (${niches.length} registro(s)).`);
     const expected = new Map([
