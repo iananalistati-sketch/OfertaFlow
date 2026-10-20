@@ -5,9 +5,10 @@ export async function POST(request:Request){
  if(!parsed.success)return NextResponse.json({error:'Verifique os dados, seus interesses e o consentimento.'},{status:400});
  if(parsed.data.website)return NextResponse.json({message:'Solicitação recebida.',invites:[]});
  const phone=parsed.data.phone.replace(/\D/g,'');if(phone.length<10||phone.length>13)return NextResponse.json({error:'Número de WhatsApp inválido.'},{status:400});
- if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.SUPABASE_SERVICE_ROLE_KEY)return NextResponse.json({error:'Modo demonstração: cadastros reais estão desativados até conectar o Supabase.'},{status:503});
+ const secretKey=process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+ if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!secretKey)return NextResponse.json({error:'Modo demonstração: cadastros reais estão desativados até conectar o Supabase.'},{status:503});
  // Necessário rate limiting persistente e CAPTCHA antes de publicar este endpoint na internet.
- const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+ const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,secretKey,{auth:{persistSession:false,autoRefreshToken:false}});
  const {data:niches,error:ne}=await db.from('niches').select('id,slug,name').in('slug',parsed.data.niches).eq('is_active',true);if(ne||!niches||niches.length!==new Set(parsed.data.niches).size)return NextResponse.json({error:'Um dos nichos escolhidos não está disponível.'},{status:400});
  const {data:subscriber,error:se}=await db.from('subscribers').upsert({name:parsed.data.name,phone_e164:phone.startsWith('55')?`+${phone}`:`+55${phone}`,consent_at:new Date().toISOString(),consent_source:'landing-v1'},{onConflict:'phone_e164'}).select('id').single();
  if(se||!subscriber)return NextResponse.json({error:'Não foi possível concluir o cadastro.'},{status:500});
