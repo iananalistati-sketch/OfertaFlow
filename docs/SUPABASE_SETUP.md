@@ -1,3 +1,29 @@
+# Configuração automática do banco — método preferencial
+
+A conexão Supabase do ChatGPT está falhando por vínculo de conta. **O esquema ainda não foi aplicado diretamente por mim no servidor.** Para evitar operações manuais no SQL Editor, o repositório inclui um executor automatizado.
+
+1. Em [OfertaFlow → Connect](https://supabase.com/dashboard/project/pbualjlqihfncjzuxnrt), abra **Connection string → Session pooler** (porta 5432) e copie a URL PostgreSQL. Substitua `[YOUR-PASSWORD]` pela senha do **banco de dados**, codificando caracteres especiais na URL. Essa senha é diferente das chaves da Data API.
+2. No arquivo **local** `.env.local` (nunca no GitHub), acrescente:
+   ```dotenv
+   OFERTAFLOW_DATABASE_URL=postgresql://URL_COPIADA_DO_CONNECT_COM_SENHA
+   OFERTAFLOW_ADMIN_EMAIL=seu-email-de-administrador@example.com
+   ```
+   Mantenha `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SECRET_KEY` já configuradas. Não copie/compartilhe credenciais no chat.
+3. Na pasta OfertaFlow do VS Code, execute:
+   ```powershell
+   git pull origin main
+   npm.cmd run setup:apply
+   npm.cmd run setup:check
+   ```
+
+O comando **setup:apply** confere que a URL aponta exclusivamente para o projeto `pbualjlqihfncjzuxnrt`, prepara um driver PostgreSQL temporário, executa uma reparação idempotente **sem DROP/TRUNCATE**, cria as políticas administrativas e RLS, atualiza o cache PostgREST, cria o usuário Auth para o e-mail escolhido se ainda não existir e o vincula à tabela `admin_users`. Ele verifica as colunas e o RLS antes do COMMIT e faz ROLLBACK em erros de estrutura.
+
+O driver temporário fica em `scripts/.ofertaflow-db-runner`, ignorado pelo Git. O script não imprime a senha nem as chaves, mas precisa da conexão com privilégios administrativos. **Nenhuma alteração será realizada somente por dar git pull; a execução é feita no seu computador após rodar setup:apply.**
+
+Se o comando falhar, compartilhe somente as linhas de erro, **sem** copiar a connection string. Em seguida teste `/admin/login` com o e-mail configurado. URLs de redirecionamento da autenticação ainda precisam ser permitidas nas configurações do Supabase.
+
+---
+
 # Configuração do Supabase — OfertaFlow
 
 **Projeto informado:** `pbualjlqihfncjzuxnrt`  
