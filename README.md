@@ -9,13 +9,17 @@ Primeira entrega executável com **Next.js 16 / TypeScript / Supabase**: landing
 3. Acesse `http://localhost:3000`, `/admin` e `/entrar`.
 4. Sem Supabase, navegação e painel mostram **dados fictícios**, e o formulário não persiste dados pessoais.
 
-## Habilitar Supabase
+## Conectar ao Supabase OfertaFlow
 
-1. Crie um projeto no Supabase e execute o arquivo `supabase/migrations/20261016150000_initial_schema.sql` pelo SQL Editor. Não há projeto remoto configurado aqui.
-2. Copie `.env.example` para `.env.local` e preencha `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (somente no servidor).
-3. Habilite autenticação de e-mail no Supabase; configure `Site URL` e os URLs de redirecionamento `http://localhost:3000/auth/confirm` ou seu domínio de produção.
-4. Crie um usuário administrador no Supabase Auth e adicione seu UUID à tabela `admin_users` pelo SQL Editor: `insert into public.admin_users(user_id) values ('UUID-DO-USUARIO');`.
-5. Para cada nicho, opcionalmente crie um registro em `whatsapp_groups` com convite válido e `is_active=true`. A entrada ocorre **somente mediante clique no convite**.
+O projeto Supabase fornecido para esta aplicação é `pbualjlqihfncjzuxnrt`, **independente** do BPF Manager. A estrutura SQL ainda deve ser aplicada ao projeto por um administrador autorizado.
+
+Siga as instruções detalhadas em [Configuração do Supabase](docs/SUPABASE_SETUP.md). Resumo:
+
+1. Atualize o repositório e copie `.env.example` para `.env.local` (sem sobrescrever configurações existentes).
+2. Copie a Publishable key e a Secret key no Dashboard do projeto para suas variáveis locais. **Nunca envie a Secret key ao GitHub**.
+3. Execute o arquivo `supabase/migrations/20261016150000_initial_schema.sql` uma única vez no SQL Editor do banco OfertaFlow.
+4. Crie seu usuário no Supabase Authentication e vincule seu UID à tabela `admin_users`.
+5. Configure os redirects do login, reinicie o Next.js e valide os cadastros pelo Table Editor.
 
 ## Segurança e restrições
 
