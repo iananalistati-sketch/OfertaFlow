@@ -21,6 +21,10 @@ Siga as instruções detalhadas em [Configuração do Supabase](docs/SUPABASE_SE
 4. Crie seu usuário no Supabase Authentication e vincule seu UID à tabela `admin_users`.
 5. Configure os redirects do login, reinicie o Next.js e valide os cadastros pelo Table Editor.
 
+## Reparação automatizada do banco
+
+Para projetos parcialmente configurados (por exemplo, PGRST205 na tabela `niches`), há o comando `npm.cmd run setup:apply`. Ele executa a reparação SQL idempotente e a preparação do primeiro administrador **sem o usuário copiar comandos SQL**. Exige a URL de conexão PostgreSQL administrativa `OFERTAFLOW_DATABASE_URL` e o e-mail `OFERTAFLOW_ADMIN_EMAIL` no arquivo local `.env.local`. Veja [o passo a passo](docs/SUPABASE_SETUP.md). **Não publique a URL do banco nem a senha**. O comando não foi executado remotamente enquanto a conexão Supabase do ChatGPT está indisponível.
+
 ## Segurança e restrições
 
 - A migração habilita **RLS em todas as tabelas**. Nada é exposto para leitura anônima; dados de inscrição são gravados por endpoint de servidor com chave privilegiada exclusivamente server-side.
