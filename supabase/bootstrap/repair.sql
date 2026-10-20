@@ -18,11 +18,11 @@ create table if not exists public.click_events(id uuid primary key default gen_r
 do $$ declare t text; begin foreach t in array array['admin_users','affiliate_accounts','niches','whatsapp_groups','subscribers','subscriber_niches','affiliate_products','product_niches','campaigns','publication_queue','publication_logs','click_events'] loop execute format('alter table public.%I enable row level security',t); end loop; end $$;
 -- Apenas administradores autorizados podem ler/editar dados via cliente autenticado.
 -- admin_users tem política restrita ao próprio registro para evitar recursão.
-do $ begin
+do $$ begin
  if not exists(select 1 from pg_policies where schemaname='public' and tablename='admin_users' and policyname='admin_self_read') then
    create policy admin_self_read on public.admin_users for select to authenticated using(user_id=(select auth.uid()));
  end if;
-end $;
+end $$;
 -- Demais tabelas: acesso exclusivamente a administradores autenticados.
 do $$ declare t text; p text; begin
  foreach t in array array['affiliate_accounts','niches','whatsapp_groups','subscribers','subscriber_niches','affiliate_products','product_niches','campaigns','publication_queue','publication_logs','click_events'] loop
