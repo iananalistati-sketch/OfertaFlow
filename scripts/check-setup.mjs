@@ -15,12 +15,22 @@ if (invalid(url) || invalid(publicKey) || invalid(secret)) {
   console.error('  Veja docs/SUPABASE_SETUP.md. Não envie suas chaves a ninguém.');
   process.exit(1);
 }
+let parsedUrl;
 try {
-  new URL(url);
+  parsedUrl = new URL(url);
 } catch {
   console.error('✗ NEXT_PUBLIC_SUPABASE_URL não é uma URL válida.');
   process.exit(1);
 }
+const expectedHost = 'pbualjlqihfncjzuxnrt.supabase.co';
+if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname !== expectedHost) {
+  console.error('✗ Este .env.local está apontando para outro projeto Supabase.');
+  console.error('  URL esperada: https://' + expectedHost);
+  console.error('  URL configurada: ' + parsedUrl.origin);
+  console.error('  Confirme as chaves deste mesmo projeto em seu painel Supabase.');
+  process.exit(1);
+}
+console.log('✓ Projeto correto: ' + expectedHost);
 if (secret === publicKey || secret.startsWith('sb_publishable_')) {
   console.error('✗ SUPABASE_SECRET_KEY não deve conter a chave pública.');
   process.exit(1);
