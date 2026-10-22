@@ -50,6 +50,14 @@ Esses são limites configuráveis de tentativas por destino, **não cotas obriga
 - **IA:** classificação multicategoria e copy atraente, mas sem inventar preço, desconto, frete, estoque, avaliações ou comissão. Regras determinísticas devem funcionar como fallback; ambiguidades podem ir à revisão.
 - **Workers:** execução periódica separada do Next.js, com rate limiting por plataforma, idempotência, backoff, observabilidade, tratamento de falhas e auditoria.
 
+## 5.1. Modelo de anúncio no WhatsApp — referência visual 22/10/2026
+
+Formato obrigatório de anúncio: **foto real do produto** acima de legenda curta com chamada chamativa; nome, preço anterior quando comprovado, preço promocional e no Pix quando aplicável, condições de parcelamento verificadas, cupom válido quando confirmado, link de afiliado da conta e indicação de publicidade/afiliado. Nicho e plataforma influenciam o texto; o template não pode inventar urgência, preço, frete, estoque, desconto, cupom ou comissão.
+
+Implementação atual: estúdio em `/admin/mensagens` com prévia semelhante ao WhatsApp; campos adicionais `affiliate_products.original_price`, `pix_price`, `installment_total`, `installment_count`, `coupon_code`, `coupon_verified_at` e `offer_expires_at`. Anúncios não verificados exibem apenas demonstração e ficam bloqueados. `offer_verified_at` deve ter atualização recente (24h) para liberar compartilhamento manual. Cupom sem confirmação recente fica oculto.
+
+**Distinção explícita:** abrir `wa.me/?text=...` apenas compartilha o **texto** manualmente, não envia a foto. Publicação automática de foto+legenda, sobretudo em grupos comuns, depende de canal aprovado e elegibilidade confirmada; não está ativa. Alternativa de distribuição futura: mensagens de marketing individuais apenas para contatos opt-in, usando templates aprovados da plataforma oficial e respeitando custos, limites e descadastro.
+
 ## 6. Arquitetura mínima
 
 - **Next.js + TypeScript:** landing page, páginas técnicas e APIs autenticadas.
