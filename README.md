@@ -25,6 +25,24 @@ Siga as instruções detalhadas em [Configuração do Supabase](docs/SUPABASE_SE
 
 Para projetos parcialmente configurados (por exemplo, PGRST205 na tabela `niches`), há o comando `npm.cmd run setup:apply`. Ele executa a reparação SQL idempotente e a preparação do primeiro administrador **sem o usuário copiar comandos SQL**. Exige a URL de conexão PostgreSQL administrativa `OFERTAFLOW_DATABASE_URL` e o e-mail `OFERTAFLOW_ADMIN_EMAIL` no arquivo local `.env.local`. Veja [o passo a passo](docs/SUPABASE_SETUP.md). **Não publique a URL do banco nem a senha**. O comando não foi executado remotamente enquanto a conexão Supabase do ChatGPT está indisponível.
 
+## Situação atual do ambiente OfertaFlow (22/10/2026)
+
+A conexão Supabase **OfertaFlow** foi autorizada no ChatGPT e as tabelas iniciais já foram criadas remotamente no projeto `pbualjlqihfncjzuxnrt`. O schema tem 12 tabelas com RLS, 4 nichos e campos adicionais de promoções. **Não é necessário executar `setup:apply` para esse projeto** — a rotina continua como ferramenta de recuperação, não como próximo passo.
+
+Para atualizar e verificar:
+
+```powershell
+git pull origin main
+npm.cmd run setup:check
+npm.cmd run dev
+```
+
+`setup:check` confirma agora que o `.env.local` aponta ao projeto correto. A pendência de `admin_users` só será resolvida quando o administrador fizer o primeiro login por e-mail em `/admin/login` **e confirmar o endereço**. O gatilho no banco fará a concessão automaticamente após essa confirmação.
+
+A tela `/admin/mensagens` permite visualizar o novo **anúncio estilo WhatsApp** com foto, oferta, Pix, parcelamento, cupom verificado e link de afiliado. Na ausência de produtos realmente verificados, mostra somente exemplo bloqueado. O botão de compartilhar prepara o texto manualmente — **não envia foto, não posta em grupo nem atribui comissão automaticamente**.
+
+Se você havia inserido `OFERTAFLOW_DATABASE_URL` no `.env.local` apenas para o bootstrap, pode removê-la: esse segredo não é necessário no funcionamento cotidiano do aplicativo.
+
 ## Segurança e restrições
 
 - A migração habilita **RLS em todas as tabelas**. Nada é exposto para leitura anônima; dados de inscrição são gravados por endpoint de servidor com chave privilegiada exclusivamente server-side.
