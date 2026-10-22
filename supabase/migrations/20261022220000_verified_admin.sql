@@ -8,9 +8,9 @@ create table if not exists app_private.admin_email_allowlist (
  created_at timestamptz not null default now()
 );
 revoke all on app_private.admin_email_allowlist from public, anon, authenticated;
-insert into app_private.admin_email_allowlist(email)
-values ('ian.analistati@gmail.com')
-on conflict (email) do nothing;
+-- A autorização da conta principal deve ser cadastrada com privilégios administrativos,
+-- sem publicar endereços de e-mail pessoais no repositório.
+-- A conta do OfertaFlow foi autorizada diretamente no projeto conectado.
 create or replace function app_private.promote_verified_admin()
 returns trigger language plpgsql security definer set search_path=''
 as $func$
@@ -28,7 +28,5 @@ drop trigger if exists ofertaflow_authorize_admin on auth.users;
 create trigger ofertaflow_authorize_admin
 after insert or update of email_confirmed_at, email on auth.users
 for each row execute function app_private.promote_verified_admin();
-insert into public.admin_users(user_id)
-select id from auth.users
-where lower(email)='ian.analistati@gmail.com' and email_confirmed_at is not null
-on conflict(user_id) do nothing;
+-- A sincronização de usuários já verificados deve ocorrer por operação administrativa,
+-- com a mesma verificação de posse do e-mail usada no trigger.
