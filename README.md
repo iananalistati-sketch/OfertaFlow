@@ -37,7 +37,7 @@ npm.cmd run setup:check
 npm.cmd run dev
 ```
 
-`setup:check` confirma agora que o `.env.local` aponta ao projeto correto. A pendência de `admin_users` só será resolvida quando o administrador fizer o primeiro login por e-mail em `/admin/login` **e confirmar o endereço**. O gatilho no banco fará a concessão automaticamente após essa confirmação.
+`setup:check` confirma agora que o `.env.local` aponta ao projeto correto. A pendência de `admin_users` será resolvida quando o e-mail autorizado fizer o primeiro login em `/admin/login` e **confirmar o link de acesso**. O Supabase pode criar a conta Auth automaticamente nesse fluxo (se cadastros estiverem habilitados); o gatilho já instalado concederá a permissão após a confirmação. Não é preciso adicionar IDs de usuário nem executar SQL. Para os templates de links que retornam `#access_token`, a rota `/auth/finish` completa a sessão no navegador.
 
 A tela `/admin/mensagens` permite visualizar o novo **anúncio estilo WhatsApp** com foto, oferta, Pix, parcelamento, cupom verificado e link de afiliado. Na ausência de produtos realmente verificados, mostra somente exemplo bloqueado. O botão de compartilhar prepara o texto manualmente — **não envia foto, não posta em grupo nem atribui comissão automaticamente**.
 
