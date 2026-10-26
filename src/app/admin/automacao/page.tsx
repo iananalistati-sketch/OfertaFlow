@@ -7,7 +7,7 @@ import { buildWhatsappCaption, type PromoOffer } from '../../../lib/automation/w
 
 export const dynamic = 'force-dynamic';
 
-type NicheRow = { slug:string; name:string; interval_minutes:number; is_active:boolean };
+type NicheRow = { slug:string; name:string; interval_minutes:number; is_active:boolean; keywords:string[] };
 type ProductRow = {
   id:string; external_id:string|null; title:string; source:string; price:number|null;
   original_price:number|null; commission_rate:number|null; commission_verified_at:string|null; sales_count:number|null; sales_verified_at:string|null; image_url:string|null; affiliate_url:string|null;
@@ -69,7 +69,7 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
   if (!admin) return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
 
   const [nichesResult, productsResult] = await Promise.all([
-    db.from('niches').select('slug,name,interval_minutes,is_active').order('name'),
+    db.from('niches').select('slug,name,interval_minutes,is_active,keywords').order('name'),
     db.from('affiliate_products').select('id,external_id,title,source,price,original_price,commission_rate,commission_verified_at,sales_count,sales_verified_at,image_url,affiliate_url,offer_verified_at,offer_expires_at,status')
       .order('created_at',{ascending:false}).limit(200),
   ]);
@@ -78,7 +78,7 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
   const nicheRows = (nichesResult.data || []) as NicheRow[];
   const productRows = (productsResult.data || []) as ProductRow[];
   const niches:NicheConfig[] = nicheRows.length ? nicheRows.map(n => ({
-    slug:n.slug, name:n.name, intervalMinutes:n.interval_minutes, isActive:n.is_active,
+    slug:n.slug, name:n.name, intervalMinutes:n.interval_minutes, isActive:n.is_active,keywords:n.keywords||[],
   })) : mockNiches.map(n=>({ slug:n.slug, name:n.name, intervalMinutes:n.interval, isActive:true }));
 
   const simulated = productRows.length === 0;
