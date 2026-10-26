@@ -43,6 +43,25 @@ A tela `/admin/mensagens` permite visualizar o novo **anúncio estilo WhatsApp**
 
 Se você havia inserido `OFERTAFLOW_DATABASE_URL` no `.env.local` apenas para o bootstrap, pode removê-la: esse segredo não é necessário no funcionamento cotidiano do aplicativo.
 
+## Solução sem e-mail — configurar senha pelo terminal
+
+Se o e-mail de acesso ou recuperação **não chegar** devido a restrições do SMTP do Supabase, use a operação local segura:
+
+```powershell
+git pull origin main
+npm.cmd run admin:set-password
+```
+
+O comando:
+- verifica a URL do projeto `pbualjlqihfncjzuxnrt`, a `SUPABASE_SECRET_KEY` e a existência de **exatamente um administrador já cadastrado e confirmado**;
+- solicita a senha **duas vezes** no terminal com caracteres ocultos (12–128 caracteres);
+- altera somente a senha desse administrador pelo endpoint oficial `auth.admin.updateUserById`;
+- quando a chave pública também estiver configurada, testa login com e-mail e senha e não mantém sessão no script.
+
+**Não é necessário `OFERTAFLOW_DATABASE_URL`, copiar SQL, cadastrar novo administrador, nem compartilhar senha com o ChatGPT.** Nunca guarde sua senha em `.env.local`, argumentos de terminal, mensagens ou GitHub. Esta rotina depende de uma chave administrativa que deve existir **somente na máquina confiável do administrador**. Caso a Secret key esteja ausente ou inválida, o script interrompe sem modificar usuários.
+
+Quando concluído, acesse `http://localhost:3000/admin/login` e entre com e-mail e a nova senha. Para o funcionamento futuro da recuperação por e-mail, configurar SMTP próprio em Supabase Authentication → SMTP Settings.
+
 ## Acesso administrativo com e-mail e senha (26/10/2026)
 
 A conta administrativa já foi criada, confirmada e autorizada no Supabase. Não é necessário novo cadastro nem edição manual da tabela `admin_users`.
