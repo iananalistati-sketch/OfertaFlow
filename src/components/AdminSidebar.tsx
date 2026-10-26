@@ -7,6 +7,7 @@ import { LogoutButton } from './LogoutButton';
 const items = [
   { href:'/admin', label:'Visão geral', symbol:'▦' },
   { href:'/admin/integracoes', label:'Integrações', symbol:'◈' },
+  { href:'/admin/origens', label:'Origens de ofertas', symbol:'◎' },
   { href:'/admin/nichos', label:'Nichos e envios', symbol:'◷' },
   { href:'/admin/grupos', label:'Grupos WhatsApp', symbol:'♧' },
   { href:'/entrar', label:'Divulgação pública', symbol:'↗' },
