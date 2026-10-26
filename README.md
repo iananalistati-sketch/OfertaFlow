@@ -92,6 +92,31 @@ A interface `/admin/shopee` contém um teste real de consulta de produtos. O bac
 
 **Cuidados:** a tela não grava ofertas no Supabase, não confirma atribuições/vendas, não cria links de afiliado novos e não envia WhatsApp. A operação só utiliza links `offerLink` que a API devolveu. A estrutura do endpoint foi consultada em documentação técnica **não oficial**, portanto pode requerer ajustes após teste da conta autorizada. Não envie as credenciais no chat, em imagens ou GitHub. A próxima entrega será persistência idempotente e classificação após a primeira consulta bem-sucedida.
 
+## Motor de automação demonstrável (26/10/2026)
+
+A autorização para a **Shopee Affiliate Open API está pendente de análise**. Enquanto isso, a rota administrativa `/admin/automacao` já executa o motor de oportunidades em **dry-run**:
+
+- classificação automática por múltiplos nichos, incluindo Todas as Ofertas;
+- deduplicação por plataforma e identificador externo;
+- pontuação explicável de qualidade das ofertas, sem estimar conversões/comissões inexistentes;
+- bloqueios de preço não validado, imagem/link comissionado ausentes, dados expirados ou itens fictícios;
+- próxima janela teórica baseada no intervalo gravado na tabela `niches`.
+
+Se não houver ofertas importadas, usa exemplos **explicitamente simulados**; não os confunda com produtos reais. O resultado não persiste filas, não posta no WhatsApp e não faz scraping.
+
+Para atualizar e verificar no VS Code:
+
+```powershell
+git pull origin main
+npm.cmd run typecheck
+npm.cmd run automation:test
+npm.cmd run dev
+```
+
+Abra `http://localhost:3000/admin/automacao` após o login. O GitHub Actions também valida tipos e testes do motor no branch principal sem usar segredos Supabase/Shopee.
+
+A próxima etapa após a liberação da Open API é consulta real, normalização com dados de comissão elegíveis, importação idempotente, revisão de links, fila transacional e publicação **apenas** por provedor de mensagens autorizado.
+
 ## Segurança e restrições
 
 - A migração habilita **RLS em todas as tabelas**. Nada é exposto para leitura anônima; dados de inscrição são gravados por endpoint de servidor com chave privilegiada exclusivamente server-side.
