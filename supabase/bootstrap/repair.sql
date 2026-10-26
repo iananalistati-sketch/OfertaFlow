@@ -3,7 +3,7 @@
 create extension if not exists pgcrypto;
 create table if not exists public.admin_users(user_id uuid primary key references auth.users(id) on delete cascade,created_at timestamptz not null default now());
 create table if not exists public.affiliate_accounts(id uuid primary key default gen_random_uuid(),provider text not null check(provider in('shopee','aliexpress','manual')),display_name text not null,status text not null default 'pending' check(status in('pending','approved','disabled')),created_at timestamptz not null default now());
-create table if not exists public.niches(id uuid primary key default gen_random_uuid(),slug text unique not null,name text not null,emoji text not null default '🏷️',interval_minutes integer not null default 60 check(interval_minutes between 15 and 1440),is_active boolean not null default true,created_at timestamptz not null default now());
+create table if not exists public.niches(id uuid primary key default gen_random_uuid(),slug text unique not null,name text not null,emoji text not null default '🏷️',interval_minutes integer not null default 5 check(interval_minutes between 5 and 1440),is_active boolean not null default true,created_at timestamptz not null default now());
 create table if not exists public.whatsapp_groups(id uuid primary key default gen_random_uuid(),niche_id uuid not null references public.niches(id),name text not null,invite_url text check(invite_url is null or invite_url ~ '^https://chat[.]whatsapp[.]com/[A-Za-z0-9]+$'),is_active boolean not null default false,auto_publish boolean not null default false,channel_verified boolean not null default false,created_at timestamptz not null default now(),constraint publish_only_verified check(not auto_publish or channel_verified));
 create table if not exists public.subscribers(id uuid primary key default gen_random_uuid(),name text not null,phone_e164 text unique not null,consent_at timestamptz not null,consent_source text not null,revoked_at timestamptz,created_at timestamptz not null default now());
 create table if not exists public.subscriber_niches(subscriber_id uuid not null references public.subscribers(id) on delete cascade,niche_id uuid not null references public.niches(id) on delete cascade,created_at timestamptz not null default now(),primary key(subscriber_id,niche_id));
@@ -40,7 +40,7 @@ do $$ declare t text; begin
    execute format('grant select,insert,update,delete on public.%I to authenticated',t);
  end loop;
 end $$;
-insert into public.niches(slug,name,emoji,interval_minutes) values('tecnologia','Tecnologia','💻',60),('games','Games','🎮',60),('casa','Casa','🏠',60),('todas-ofertas','Todas as Ofertas','🔥',30) on conflict(slug) do nothing;
+insert into public.niches(slug,name,emoji,interval_minutes) values('tecnologia','Tecnologia','💻',5),('games','Games','🎮',5),('casa','Casa','🏠',5),('todas-ofertas','Todas as Ofertas','🔥',5) on conflict(slug) do nothing;
 -- Sem grupos, links ou produtos reais previamente cadastrados. Nunca ativar envio automático por default.
 
 -- Atualiza o cache do PostgREST, importante para PGRST205.
