@@ -50,3 +50,17 @@ export async function toggleNiche(formData: FormData) {
   revalidatePath('/admin/nichos');
   revalidatePath('/admin');
 }
+
+/** Admin escolhe a intenção por nicho. O publicador sempre exigirá canal verificado. */
+export async function toggleAutoPublish(formData: FormData) {
+  const db = await adminDb();
+  const id = z.string().uuid().parse(formData.get('id'));
+  const { data: niche, error: lookupError } = await db.from('niches')
+    .select('auto_publish_enabled').eq('id', id).single();
+  if (lookupError || !niche) throw new Error('Nicho não encontrado.');
+  const { error } = await db.from('niches')
+    .update({ auto_publish_enabled: !niche.auto_publish_enabled }).eq('id', id);
+  if (error) throw new Error(error.message);
+  revalidatePath('/admin/nichos');
+  revalidatePath('/admin');
+}
