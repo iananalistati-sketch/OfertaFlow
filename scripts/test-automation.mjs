@@ -48,10 +48,10 @@ for (const invalid of [
 
 const niches = [
   {slug:'tecnologia',name:'Tecnologia',intervalMinutes:5,isActive:true},
-  {slug:'games',name:'Games',intervalMinutes:60,isActive:true},
-  {slug:'casa',name:'Casa',intervalMinutes:60,isActive:true},
+  {slug:'games',name:'Games',intervalMinutes:5,isActive:true},
+  {slug:'casa',name:'Casa',intervalMinutes:5,isActive:true},
   {slug:'todas-ofertas',name:'Todas as Ofertas',intervalMinutes:5,isActive:true},
-  {slug:'inativo',name:'Inativo',intervalMinutes:30,isActive:false},
+  {slug:'inativo',name:'Inativo',intervalMinutes:5,isActive:false},
 ];
 const plan = engine.makeOpportunityPlan([validOffer, repeated], niches, now);
 assert.equal(plan.opportunities.length, 1);
