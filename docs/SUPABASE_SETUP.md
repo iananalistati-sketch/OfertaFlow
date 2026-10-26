@@ -62,7 +62,7 @@ A chave pública é necessária para autenticação e gestão administrativa; a 
 4. Em **Table Editor**, confirme que existem `admin_users`, `affiliate_accounts`, `affiliate_products`, `niches`, `whatsapp_groups`, `subscribers` e demais tabelas.
 5. Confira em **Database → Policies** que o Row Level Security (RLS) está ativo. Não desative RLS para “fazer funcionar”.
 
-A migração cria os nichos Tecnologia (60 min), Games (60 min), Casa (60 min) e Todas as Ofertas (30 min). Nenhuma publicação é habilitada.
+A migração cria os nichos Tecnologia (5 min), Games (5 min), Casa (5 min) e Todas as Ofertas (5 min). Nenhuma publicação é habilitada.
 
 **Não execute novamente o SQL inteiro se as tabelas já existirem.** Primeiro verifique o estado ou as migrações aplicadas.
 
