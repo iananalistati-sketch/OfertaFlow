@@ -141,3 +141,28 @@ Painel CRUD real para nichos, grupos, ofertas e contas; sincronização de catá
 O painel agora utiliza **um único menu lateral navegável** em todas as telas privadas (no celular, menu horizontal rolável). Os botões redundantes da região central foram removidos. A visão geral consulta indicadores e intervalos reais do Supabase.
 
 Todos os nichos existentes foram alterados para **5 minutos** e o limite mínimo do cadastro, do banco e do motor agora é 5 minutos. A cadência representa uma janela teórica de planejamento, **não uma rotina automática habilitada**. Nenhuma mensagem de WhatsApp é disparada apenas por essa configuração.
+
+## Operação simplificada (26/10/2026)
+
+O painel principal usa somente as seções **Visão geral, Integrações, Nichos e envios, Grupos WhatsApp, Divulgação pública e Segurança**. Os programas de afiliados, incluindo Shopee e AliExpress, compartilham a área de Integrações.
+
+Em **Nichos e envios**:
+- criar nichos e indicar palavras-chave de produtos relevantes;
+- configurar a cadência (atualmente 5 min);
+- ligar ou desligar a intenção de publicação automática individualmente por nicho, **sem aprovar oferta por oferta**.
+
+O botão de intenção não libera disparos por si só. Sem API de afiliados, link comissionado válido, provedor de grupos autorizado e confirmação do canal, o envio continua tecnicamente bloqueado.
+
+Em **Grupos WhatsApp**:
+- criar cadastro local de convite (o grupo real é criado no próprio WhatsApp até haver integração elegível);
+- informar capacidade, número de membros conhecido e marcar grupos lotados;
+- acompanhar contagem de **aberturas de convites** e solicitações de expansão sem grupos disponíveis;
+- após cadastrar novo grupo do mesmo nicho com convite ativo, novos visitantes usam o endereço estável correspondente, sem alterar o link publicado nas redes.
+
+**Para divulgar:** a página pública `/entrar` agora mostra nichos atuais, permite várias escolhas e abre o WhatsApp pelo endereço interno `/g/[slug]`. Ela não exige nome nem telefone; o endpoint legado `/api/subscribe` não recolhe mais dados. **Apenas depois de hospedagem pública** esse endereço poderá ser divulgado nas redes — `localhost` funciona somente em seu computador.
+
+**Métricas com significados diferentes:** cliques em convites NÃO são ingresso confirmado; mensagens marcadas como enviadas só contarão quando uma integração legítima enviar e registrar resultado; o número de membros é preenchido manualmente até que um provedor autorizado possa aferi-lo.
+
+**Limite importante:** criação automática de grupo no WhatsApp e monitoramento de membros dependem de API elegível. Para grupos convencionais, não há uma integração oficial disponível que possamos presumir. A Meta disponibiliza uma Groups API de uso restrito, para contas elegíveis, com grupos pequenos; não confundir com grupos convencionais de ofertas. O sistema registra pendência de expansão, **não afirma criar um grupo real**.
+
+O motor pontua relevância, condições verificadas, comissão elegível e vendas observadas de plataformas autorizadas; faltando dados de vendas/comissões, marca-os como desconhecidos. O acesso à API Shopee permanece pendente.
