@@ -43,6 +43,20 @@ A tela `/admin/mensagens` permite visualizar o novo **anúncio estilo WhatsApp**
 
 Se você havia inserido `OFERTAFLOW_DATABASE_URL` no `.env.local` apenas para o bootstrap, pode removê-la: esse segredo não é necessário no funcionamento cotidiano do aplicativo.
 
+## Acesso administrativo com e-mail e senha (26/10/2026)
+
+A conta administrativa já foi criada, confirmada e autorizada no Supabase. Não é necessário novo cadastro nem edição manual da tabela `admin_users`.
+
+1. Execute `git pull origin main` e reinicie `npm.cmd run dev`.
+2. Em `http://localhost:3000/admin/login`, escolha **Primeiro acesso ou esqueci a senha** e solicite um link de acesso no endereço administrativo autorizado.
+3. Abra o link no e-mail para iniciar a sessão. Em seguida, no painel, clique em **Segurança da conta** (`/admin/seguranca`).
+4. Defina uma senha exclusiva de pelo menos 12 caracteres.
+5. Os próximos logins funcionam com e-mail e senha. Caso esqueça a senha, use o link de e-mail novamente.
+
+A aplicação usa o Supabase Auth; senhas não são salvas nas tabelas do OfertaFlow. A rota de login por senha valida também a presença do usuário em `admin_users`. A rota de Magic Link foi ajustada para **não criar novos usuários** automaticamente.
+
+**O formulário de captação pública, os disparos de WhatsApp e as integrações de afiliados reais continuam inativos ou experimentais.** Não enviar dados reais de consumidores antes das proteções antiabuso e LGPD.
+
 ## Segurança e restrições
 
 - A migração habilita **RLS em todas as tabelas**. Nada é exposto para leitura anônima; dados de inscrição são gravados por endpoint de servidor com chave privilegiada exclusivamente server-side.
