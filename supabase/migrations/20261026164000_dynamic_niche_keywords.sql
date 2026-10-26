@@ -1,0 +1,1 @@
+alter table public.niches add column if not exists keywords text[] not null default '{}'::text[]; notify pgrst,'reload schema';
