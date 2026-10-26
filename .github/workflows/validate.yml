@@ -1,0 +1,29 @@
+name: Validar OfertaFlow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Instalar dependências
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verificar tipos
+        run: npm run typecheck
+      - name: Testar motor automático
+        run: npm run automation:test
