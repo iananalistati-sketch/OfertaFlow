@@ -27,7 +27,7 @@ export default async function ShopeeSetup() {
     <div className="notice">
       {ready
         ? 'App ID e Secret encontrados no servidor. O acesso da conta à API ainda precisa ser testado. Nenhum produto foi importado e o envio WhatsApp permanece desativado.'
-        : 'A Open API ainda não foi configurada neste servidor. Solicite autorização da Shopee e informe as credenciais apenas no arquivo .env.local.'}
+        : 'A Shopee informou que sua conta de afiliado ainda não tem acesso à Open API. Solicite a habilitação pelo link “entre em contato com a gente” no portal. Não configure credenciais fictícias.'}
     </div>
     <div className="stats">
       <div className="stat"><span>App ID</span><strong>{hasId ? '✓' : '—'}</strong><small>{hasId ? 'Configurado no servidor' : 'Aguardando configuração'}</small></div>
@@ -39,6 +39,8 @@ export default async function ShopeeSetup() {
       <h2>Como liberar a integração</h2>
       <ol style={{lineHeight:2}}>
         <li>Acesse o <a href="https://affiliate.shopee.com.br/open_api" target="_blank" rel="noopener noreferrer"><u>painel Open API da Shopee</u></a> com a sua conta de afiliado.</li>
+        <li>Se aparecer a mensagem de <strong>acesso indisponível</strong>, clique em <strong>“entre em contato com a gente”</strong> ou vá à <strong>Central de Ajuda → E-mail / Fale conosco</strong>. No formulário, selecione <strong>“Quero ativar a API”</strong> e informe seu ID de afiliado e telefone cadastrado.</li>
+        <li>Aguarde a análise e autorização da Shopee. Ter cadastro de afiliado ativo não libera automaticamente a API.</li>
         <li>Verifique se aparecem suas credenciais <strong>App ID</strong> e <strong>Secret da API</strong>. Se não aparecerem, solicite liberação à Shopee.</li>
         <li>No <strong>.env.local</strong> do OfertaFlow, adicione as duas variáveis abaixo, sem publicar valores no GitHub.</li>
         <li>Reinicie o Next.js e use a consulta de teste nesta mesma página.</li>
