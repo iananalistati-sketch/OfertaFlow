@@ -86,6 +86,16 @@ O menu lateral passa a ser a **única navegação principal das telas administra
 
 A visão geral deve ler os nichos e seus intervalos **reais** do Supabase em vez de exibir cadências fictícias; outros números devem ser claramente rotulados quando forem simulados. O botão “Sair” fica na navegação.
 
+## 5.5. Produto simplificado e expansão de grupos (26/10/2026)
+
+Diretriz revisada do proprietário:
+- Sidebar voltada a **Visão geral, Nichos, Grupos, Integrações e Divulgação** (com segurança acessível), sem painel de aprovação manual de publicações.
+- Um booleano `niches.auto_publish_enabled` expressa a **intenção** de envio automático para todo o nicho, padrão `false`. A publicação depende também de provedor/conta autorizado, link verificado, canal compatível e confirmação de entrega. **O toggle sozinho nunca dispara nada.**
+- Produtos devem ser priorizados pelo potencial de vendas e comissão elegível, utilizando sinais **verificados** de histórico/desempenho e porcentagem/valor de comissão quando disponíveis. Sem esses sinais, não exibir previsão de vendas nem comissão fictícia; priorizar apenas qualidade/relevância, marcando a incerteza.
+- Divulgação por um link estável do OfertaFlow: o visitante escolhe um ou vários nichos e abre convite do grupo disponível de cada nicho. Sem cadastro obrigatório de nome e telefone; acesso voluntário ao WhatsApp. O clique no convite **não confirma ingresso**. Contabilizar cliques de redirecionamento separados de mensagens efetivamente publicadas.
+- Grupo convencional: guardar capacidade máxima configurada, ocupação conhecida, momento e origem da última aferição (manual ou integração aprovada); retirar da distribuição os grupos marcados cheios e direcionar novos visitantes ao próximo grupo com vagas. Lotação não observada fica **desconhecida**, nunca presumida; orientação administrativa para atualizar. Quando faltarem grupos com vaga, registrar pedido de expansão, não criar grupos falsos.
+- Criação automática de grupo real, aferição automática de membros e envio dependerão de conector elegível e autorizado que ofereça essas funções. **Sem automação não oficial de WhatsApp Web.** O app jamais anuncia a criação de grupo real quando tiver criado apenas uma pendência administrativa.
+
 ## 6. Arquitetura mínima
 
 - **Next.js + TypeScript:** landing page, páginas técnicas e APIs autenticadas.
