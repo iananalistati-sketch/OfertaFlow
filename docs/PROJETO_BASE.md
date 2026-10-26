@@ -96,6 +96,21 @@ Diretriz revisada do proprietário:
 - Grupo convencional: guardar capacidade máxima configurada, ocupação conhecida, momento e origem da última aferição (manual ou integração aprovada); retirar da distribuição os grupos marcados cheios e direcionar novos visitantes ao próximo grupo com vagas. Lotação não observada fica **desconhecida**, nunca presumida; orientação administrativa para atualizar. Quando faltarem grupos com vaga, registrar pedido de expansão, não criar grupos falsos.
 - Criação automática de grupo real, aferição automática de membros e envio dependerão de conector elegível e autorizado que ofereça essas funções. **Sem automação não oficial de WhatsApp Web.** O app jamais anuncia a criação de grupo real quando tiver criado apenas uma pendência administrativa.
 
+## 5.6. Fluxo social e métricas operacionais (26/10/2026)
+
+Implementado:
+- Menu **Integrações** unifica Shopee e AliExpress; não se criam entradas de navegação por plataforma.
+- `niches.auto_publish_enabled` permite ao administrador solicitar ou desligar automação por nicho. O sistema **não** exige aprovação item a item, mas o envio permanece bloqueado sem provedor afiliado, conexão WhatsApp autorizada e condições de segurança completas.
+- `niches.keywords` permite classificar ofertas em nichos novos usando palavras-chave administráveis.
+- `affiliate_products.commission_rate` e `sales_count` (com datas próprias de verificação) são sinais opcionais de comissão elegível e vendas observadas **da API autorizada**; a pontuação prioriza ofertas verificadas, comissão potencial estimada e desempenho observado, sem prever vendas inventadas.
+- Página pública `/entrar` recupera os nichos ativos, não exige nome/telefone e apresenta botões de acesso voluntário. O link estável `/g/[slug]` resolve no momento do acesso o primeiro grupo elegível do nicho, excluindo grupos lotados informados.
+- O contador `group_invite_clicks` mede **aberturas de convites**, não ingressos. `publication_queue.status='sent'` registra mensagens efetivamente marcadas como enviadas por futuro canal legítimo (atualmente zero), separado dos cliques.
+- O cadastro de grupos guarda `member_count`, `capacity_limit`, `is_full` e `capacity_updated_at`; a aferição é **manual até existir integração autorizada**. Se nenhum grupo tiver convite elegível, o sistema registra uma pendência `group_expansion_requests`; isso **não cria grupo no WhatsApp**. Para criar um novo grupo real é necessário canal elegível com API de criação ou administrador configurá-lo no WhatsApp e informar o link.
+- O fluxo antigo de captação de nome e telefone em `/api/subscribe` retorna 410 e não recolhe mais esses dados.
+- Todos os grupos comuns têm capacidade potencialmente diferente do limite da Groups API oficial; sem integração compatível, não alegar capacidade/ingressos atualizados em tempo real.
+
+Não implementado: sincronização automática de participantes, criação real de grupos, envio em grupos comuns, job de publicações ou comissões recebidas. Todas essas ações exigem verificação técnica e jurídica do provedor. Não empregar automação não autorizada do WhatsApp Web.
+
 ## 6. Arquitetura mínima
 
 - **Next.js + TypeScript:** landing page, páginas técnicas e APIs autenticadas.
