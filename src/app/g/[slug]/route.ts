@@ -38,7 +38,10 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{slug:str
        !/^\/[A-Za-z0-9]+$/.test(url.pathname)){
       return new NextResponse('O link de convite precisa ser atualizado.',{status:503});
     }
-    return NextResponse.redirect(url,302,{headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
+    const response=NextResponse.redirect(url,302);
+    response.headers.set('Cache-Control','no-store');
+    response.headers.set('Referrer-Policy','no-referrer');
+    return response;
   } catch {
     return new NextResponse('O convite está temporariamente indisponível.',{status:503});
   }
