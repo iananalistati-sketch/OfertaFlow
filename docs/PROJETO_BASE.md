@@ -66,6 +66,20 @@ O modelo de assinatura/consulta está fundamentado em documentação técnica p�
 
 Sequência: liberar API Shopee → configurar segredo apenas em `.env.local` → consultar amostra real → validar link e condições/termos → implementar persistência idempotente, classificação, checagem de expiração, fila e publicação em canal autorizado.
 
+## 5.3. Motor de oportunidades e planejamento sem envios (26/10/2026)
+
+Enquanto a conta Shopee aguarda a liberação da Open API, implementamos uma camada funcional e independente de provedores em `src/lib/automation/opportunity-engine.ts`, exibida na tela `/admin/automacao`:
+
+- **Deduplicação:** chave `provedor:ID_externo`; preserva o cadastro mais validado/recente, sem agrupar produtos semelhantes de lojas diferentes.
+- **Multinicho:** detecção por regras normalizadas com acentos, permitindo Tecnologia + Games para o mesmo produto; agregador Todas as Ofertas recebe todos os candidatos.
+- **Score explicável de 0 a 100:** relevância textual (até 30), qualidade dos dados (20), validação recente (20), desconto comprovado (15) e bonificação somente para taxa de comissão fornecida e atualizada (15). É uma **heurística técnica de qualidade**, não probabilidade de compra nem rendimento garantido.
+- **Bloqueios:** itens fictícios, origem manual sem verificação, status rascunho/expirado, imagens ou links HTTPS ausentes, preço nulo e verificação vencida ficam indisponíveis para envio.
+- **Janelas:** calcula o próximo horário teórico de cada nicho ativo conforme `interval_minutes` do Supabase; mostra somente o melhor candidato de cada destino. Não persiste `publication_queue` nem altera grupos.
+- **Dados:** lê até 200 produtos do banco administrativo; quando vazio, utiliza quatro exemplos explicitamente marcados, com uma duplicata deliberada para validação, sem URLs comissionadas.
+- **Testes:** `npm run automation:test` verifica classificação, duplicação, bloqueio e cadência. O CI também roda `npm run typecheck` e `npm run automation:test` sem credenciais reais.
+
+**Limitação expressa:** score e plano são apenas simulações. Não há fonte Shopee habilitada, worker cron, scoring com resultados reais de comissão ou publicação automatizada. A criação de filas persistentes, auditoria e entrega só ocorrerá depois da validação de provedor e canal autorizado. Não confundir janelas hipotéticas com mensagens programadas.
+
 ## 6. Arquitetura mínima
 
 - **Next.js + TypeScript:** landing page, páginas técnicas e APIs autenticadas.
