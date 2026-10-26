@@ -76,6 +76,22 @@ A aplicação usa o Supabase Auth; senhas não são salvas nas tabelas do Oferta
 
 **O formulário de captação pública, os disparos de WhatsApp e as integrações de afiliados reais continuam inativos ou experimentais.** Não enviar dados reais de consumidores antes das proteções antiabuso e LGPD.
 
+## Shopee Open API: próxima etapa (26/10/2026)
+
+A interface `/admin/shopee` contém um teste real de consulta de produtos. O backend usa `productOfferV2` com autenticação GraphQL SHA256, **somente se a conta tiver acesso aprovado e credenciais válidas**.
+
+1. Acesse a área `https://affiliate.shopee.com.br/open_api` com sua conta de afiliado.
+2. Se App ID e Secret estiverem liberados, adicione **somente** ao arquivo local `.env.local`:
+   ```dotenv
+   SHOPEE_AFFILIATE_APP_ID=COLE_SEU_ID
+   SHOPEE_AFFILIATE_SECRET=COLE_SEU_SECRET_DA_API
+   ```
+3. Reinicie o Next.js (`npm.cmd run dev`) e acesse `http://localhost:3000/admin/shopee` após login administrativo.
+4. Clique em **Buscar produtos via API**, informando uma palavra-chave. A página retorna uma amostra real de até oito ofertas sem salvá-las.
+5. Se a API retornar erro de permissão `10035`, solicite a liberação da Open API à Shopee. Erro `10020` indica assinatura ou credenciais inválidas; `10030` indica limite de chamadas.
+
+**Cuidados:** a tela não grava ofertas no Supabase, não confirma atribuições/vendas, não cria links de afiliado novos e não envia WhatsApp. A operação só utiliza links `offerLink` que a API devolveu. A estrutura do endpoint foi consultada em documentação técnica **não oficial**, portanto pode requerer ajustes após teste da conta autorizada. Não envie as credenciais no chat, em imagens ou GitHub. A próxima entrega será persistência idempotente e classificação após a primeira consulta bem-sucedida.
+
 ## Segurança e restrições
 
 - A migração habilita **RLS em todas as tabelas**. Nada é exposto para leitura anônima; dados de inscrição são gravados por endpoint de servidor com chave privilegiada exclusivamente server-side.
