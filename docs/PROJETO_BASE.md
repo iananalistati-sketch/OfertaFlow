@@ -111,6 +111,26 @@ Implementado:
 
 Não implementado: sincronização automática de participantes, criação real de grupos, envio em grupos comuns, job de publicações ou comissões recebidas. Todas essas ações exigem verificação técnica e jurídica do provedor. Não empregar automação não autorizada do WhatsApp Web.
 
+
+## 5.7. Referência de fluxo AfiliFlow — descoberta → link próprio → distribuição (26/10/2026)
+
+O proprietário escolheu seguir o **modelo operacional de captação de ofertas de grupos de origem** divulgado pelo AfiliFlow, preservando identidade, código, experiência e implementações próprias. Referências públicas de funcionamento: https://afiliflow.com.br/ e https://afiliflow.com.br/blog/primeiros-passos-afiliflow-do-zero-a-primeira-oferta .
+
+**O modelo de referência tem sete etapas:** conectar canal, conectar contas de afiliado, modelos por nicho, definir grupos/fontes de origem, definir grupos de destino, converter links próprios e agendar distribuição com prioridade/intervalo. Captar oferta não implica direito de copiá-la, processar mensagens privadas ou publicá-la em grupos.
+
+**O que já implementamos no OfertaFlow:**
+- Tabelas `offer_sources` e `captured_offers` com acesso administrativo via RLS.
+- Tela `/admin/origens` permite registrar grupos como **referências não conectadas** e fontes de feed/webhook autorizados. `collection_enabled` exige `capability_verified=true` e `status=ready`.
+- Motor `src/lib/automation/link-conversion.ts` identifica domínios de marketplaces e rejeita conversões sem verificação independente do link da própria conta, imagem e preço recentes e permissão explícita do canal.
+- Cobertura de testes do motor e presença da opção Mercado Livre em Integrações. Não copia código do AfiliFlow.
+- Continua válida a página de convites `/entrar`, o gerenciamento de grupos com expansão e os intervalos de 5 minutos por nicho.
+
+**O que não está implementado ou autorizado:** monitorar grupos de WhatsApp privados por QR Code, ler mensagens de terceiros 24 horas, importar sessão/cookies do Chrome, gerar links `meli.la` automaticamente sem API/parceiro autorizado, republicar imagens sem licença ou enviar mensagens a grupos por automação não autorizada. A aplicação não deve simular conexão com WhatsApp ou links convertidos.
+
+**Próximo marco técnico:** obter integração elegível para ofertas (programa de afiliados/parceiro), conectar fonte consentida, validar atribuição dos links e condições reais do produto, preparar fila transacional independente por nicho, conectar canal de publicação homologado; só então habilitar controle de envio real com auditoria e limites. Sem infraestrutura de canal aprovado, o sistema permanecerá em modo de captação/planejamento.
+
+**Restrições externas:** o WhatsApp restringe automação de contas/grupos sem autorização expressa. O Mercado Livre publicou orientações por vezes divergentes sobre WhatsApp; confirmar os canais elegíveis diretamente com o programa da conta antes de publicar.
+
 ## 6. Arquitetura mínima
 
 - **Next.js + TypeScript:** landing page, páginas técnicas e APIs autenticadas.
