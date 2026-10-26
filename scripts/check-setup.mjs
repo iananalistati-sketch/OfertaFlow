@@ -64,7 +64,7 @@ try {
   } else {
     pass(`Banco acessível; tabela niches consultada (${niches.length} registro(s)).`);
     const expected = new Map([
-      ['tecnologia', 60], ['games', 60], ['casa', 60], ['todas-ofertas', 30]
+      ['tecnologia', 5], ['games', 5], ['casa', 5], ['todas-ofertas', 5]
     ]);
     const mismatches = [...expected].filter(([slug, minutes]) => {
       const row = niches.find(n => n.slug === slug);
