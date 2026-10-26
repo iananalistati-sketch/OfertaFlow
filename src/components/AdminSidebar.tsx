@@ -6,12 +6,10 @@ import { LogoutButton } from './LogoutButton';
 
 const items = [
   { href:'/admin', label:'Visão geral', symbol:'▦' },
-  { href:'/admin/shopee', label:'Integração Shopee', symbol:'◈' },
-  { href:'/admin/catalogo', label:'Catálogo', symbol:'▤' },
-  { href:'/admin/nichos', label:'Nichos e intervalos', symbol:'◷' },
+  { href:'/admin/integracoes', label:'Integrações', symbol:'◈' },
+  { href:'/admin/nichos', label:'Nichos e envios', symbol:'◷' },
   { href:'/admin/grupos', label:'Grupos WhatsApp', symbol:'♧' },
-  { href:'/admin/automacao', label:'Motor de ofertas', symbol:'⚙' },
-  { href:'/admin/mensagens', label:'Mensagens', symbol:'✉' },
+  { href:'/entrar', label:'Divulgação pública', symbol:'↗' },
   { href:'/admin/seguranca', label:'Segurança', symbol:'◇' },
 ];
 
@@ -30,7 +28,7 @@ export function AdminSidebar() {
       })}
     </nav>
     <div className="sidebottom admin-sidebottom">
-      <p>Publicação automática: <strong className="muted">Desativada</strong></p>
+      <p>Canal de publicação: <strong className="muted">Aguardando integração</strong></p>
       <LogoutButton/>
     </div>
   </aside>;
