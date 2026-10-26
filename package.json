@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "setup:check": "node --env-file=.env.local scripts/check-setup.mjs",
     "setup:apply": "node --env-file=.env.local scripts/repair-database.mjs",
-    "admin:set-password": "node --env-file=.env.local scripts/admin-set-password.mjs"
+    "admin:set-password": "node --env-file=.env.local scripts/admin-set-password.mjs",
+    "automation:test": "node scripts/test-automation.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
