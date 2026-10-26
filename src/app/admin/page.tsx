@@ -1,8 +1,69 @@
-import {LogoutButton} from '../../components/LogoutButton';
-import {redirect} from 'next/navigation';import Link from 'next/link';import {Nav} from '../../components/Nav';import {configured,mockNiches,mockProducts} from '../../lib/config';import {serverClient} from '../../lib/supabase/server';
-export const dynamic='force-dynamic';
-export default async function Admin(){
- let demo=!configured;let email='Demonstração';
- if(configured){const supabase=await serverClient();const {data:{user}}=await supabase.auth.getUser();if(!user)redirect('/admin/login');const {data:admin}=await supabase.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();if(!admin)return <main className="shell"><h2>Acesso não autorizado</h2><p>Sua conta não foi incluída na tabela admin_users.</p></main>;email=user.email||'Administrador';demo=false;}
- return <><Nav/><div className="app"><aside className="sidebar"><div className="sidehead">WORKSPACE</div>{[['▦','Visão geral'],['◈','Plataformas'],['▤','Produtos'],['♧','Nichos e grupos'],['◷','Campanhas'],['▥','Relatórios']].map(([icon,label],i)=><div className={'sideitem '+(!i?'active':'')} key={label}><span>{icon}</span> {label}</div>)}<div className="sidebottom">Publicação em grupos<br/><strong className="muted">● Desativada</strong></div></aside><main className="main"><div className="heading"><div><div className="eyebrow">CENTRAL DE CONTROLE</div><h1>Visão geral</h1><p>Bem-vindo, {email}. Gerencie suas campanhas por nicho.</p></div><Link className="btn primary" href="/entrar">Ver captação ↗</Link></div>{demo&&<div className="notice">● MODO DEMONSTRAÇÃO — Dados fictícios. Conecte o Supabase para habilitar autenticação e cadastros reais.</div>}<div className="stats"><div className="stat"><span>Contas integradas</span><strong>0</strong><small>Credenciais pendentes</small></div><div className="stat"><span>Produtos ilustrativos</span><strong>04</strong><small>Catálogo fictício</small></div><div className="stat"><span>Nichos configurados</span><strong>04</strong><small>3 segmentados + geral</small></div><div className="stat"><span>Publicações realizadas</span><strong>0</strong><small>Envio desativado</small></div></div><div className="sectionrow"><h2>Campanhas por nicho</h2><div style={{display:"flex",gap:10,flexWrap:"wrap"}}><Link className="btn outline" href="/admin/nichos">Gerenciar nichos ↗</Link><Link className="btn outline" href="/admin/grupos">Gerenciar grupos ↗</Link><Link className="btn outline" href="/admin/catalogo">Plataformas e produtos ↗</Link><Link className="btn primary" href="/admin/automacao">Descoberta automática ↗</Link><Link className="btn primary" href="/admin/mensagens">Prévia WhatsApp ↗</Link><Link className="btn outline" href="/admin/shopee">Conectar Shopee ↗</Link><Link className="btn outline" href="/admin/seguranca">Segurança da conta ↗</Link><LogoutButton/></div><span className="subtext">Intervalos simulados</span></div><div className="campaigns">{mockNiches.map(n=><div className="campaign" key={n.slug}><div className="emoji">{n.emoji}</div><div className="grow"><b>{n.name}</b><small>1 anúncio a cada {n.interval} minutos</small></div><span className="chip">Aguardando integração</span></div>)}</div><div className="sectionrow"><h2>Catálogo de exemplo</h2><span className="subtext">Sem ofertas ou links reais</span></div><div className="tablewrap"><table><thead><tr><th>PRODUTO</th><th>PLATAFORMA</th><th>NICHO</th><th>PREÇO</th><th>SITUAÇÃO</th></tr></thead><tbody>{mockProducts.map(x=><tr key={x.id}><td><b>{x.title}</b><small>{x.id}</small></td><td>{x.platform}</td><td>{x.niche}</td><td>{x.price}</td><td><span className="chip">{x.status}</span></td></tr>)}</tbody></table></div><div className="footnote">Adaptadores Shopee e AliExpress: preparados, porém desativados. Publicações exigem validação de API, consentimento, regras dos afiliados e canal compatível.</div></main></div></>
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { configured, mockNiches } from '../../lib/config';
+import { serverClient } from '../../lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
+
+type Niche = { slug:string; name:string; emoji:string; interval_minutes:number; is_active:boolean };
+
+export default async function Admin() {
+  if (!configured) return <main className="main"><h1>Configure o Supabase</h1><p>O acesso administrativo exige um banco conectado.</p></main>;
+  const db = await serverClient();
+  const { data:{user} } = await db.auth.getUser();
+  if (!user) redirect('/admin/login');
+  const { data:admin, error:authError } = await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
+  if (authError || !admin) return <main className="main"><h1>Acesso não autorizado</h1></main>;
+
+  const [nicheResult, accountsResult, productsResult, publicationsResult] = await Promise.all([
+    db.from('niches').select('slug,name,emoji,interval_minutes,is_active').order('name'),
+    db.from('affiliate_accounts').select('id',{count:'exact',head:true}).eq('status','approved'),
+    db.from('affiliate_products').select('id',{count:'exact',head:true}),
+    db.from('publication_queue').select('id',{count:'exact',head:true}).eq('status','sent'),
+  ]);
+  if (nicheResult.error || accountsResult.error || productsResult.error || publicationsResult.error) {
+    throw new Error('Não foi possível carregar os indicadores atuais do Supabase.');
+  }
+  const niches = (nicheResult.data || []) as Niche[];
+  const active = niches.filter(n => n.is_active);
+  return <main className="main">
+    <div className="heading">
+      <div>
+        <div className="eyebrow">PAINEL ADMINISTRATIVO</div>
+        <h1>Visão geral</h1>
+        <p>Conta: {user.email}. Acompanhe a configuração e o estado da plataforma.</p>
+      </div>
+      <span className="chip">Ambiente de desenvolvimento</span>
+    </div>
+
+    <div className="stats">
+      <div className="stat"><span>Integrações aprovadas</span><strong>{accountsResult.count ?? 0}</strong><small>Shopee: autorização de API pendente</small></div>
+      <div className="stat"><span>Produtos cadastrados</span><strong>{productsResult.count ?? 0}</strong><small>Somente registros reais do banco</small></div>
+      <div className="stat"><span>Nichos ativos</span><strong>{active.length}</strong><small>Configuração atual</small></div>
+      <div className="stat"><span>Publicações registradas</span><strong>{publicationsResult.count ?? 0}</strong><small>Envio automático desativado</small></div>
+    </div>
+
+    <div className="sectionrow"><h2>Cadência por nicho</h2><span className="subtext">Intervalos configurados no Supabase</span></div>
+    <div className="campaigns">
+      {active.map(n=><div className="campaign" key={n.slug}>
+        <div className="emoji">{n.emoji}</div>
+        <div className="grow"><b>{n.name}</b><small>Intervalo de planejamento: {n.interval_minutes} min</small></div>
+        <span className="chip">Envio bloqueado</span>
+      </div>)}
+    </div>
+    {!active.length && <p className="notice">Nenhum nicho ativo no banco.</p>}
+
+    <div className="sectionrow"><h2>Estado das integrações</h2><span className="subtext">Informações de operação</span></div>
+    <div className="campaigns">
+      <div className="panel">
+        <h3>API Shopee</h3>
+        <p className="subtext">Solicitação de acesso enviada. Sem credenciais aprovadas, produtos e links comissionados não são importados.</p>
+      </div>
+      <div className="panel">
+        <h3>WhatsApp</h3>
+        <p className="subtext">Modelo de anúncios preparado. Publicação em grupos continua desativada até integração autorizada.</p>
+      </div>
+    </div>
+    <p className="footnote">Use exclusivamente o menu lateral para acessar as funcionalidades. Os intervalos não agendam nem enviam mensagens por conta própria.</p>
+  </main>;
 }
