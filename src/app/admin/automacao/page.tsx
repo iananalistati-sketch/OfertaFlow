@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Nav } from '../../../components/Nav';
 import { configured, mockNiches, mockProducts } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
 import { makeOpportunityPlan, type OpportunityCandidate, type NicheConfig } from '../../../lib/automation/opportunity-engine';
@@ -64,7 +63,7 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
   const { data:{ user } } = await db.auth.getUser();
   if (!user) redirect('/admin/login');
   const { data:admin } = await db.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle();
-  if (!admin) return <><Nav/><main className="main"><h1>Acesso não autorizado</h1></main></>;
+  if (!admin) return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
 
   const [nichesResult, productsResult] = await Promise.all([
     db.from('niches').select('slug,name,interval_minutes,is_active').order('name'),
@@ -87,8 +86,8 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
   const filtered = niche === 'todos' ? plan.opportunities :
     plan.opportunities.filter(o => o.destinations.includes(niche));
 
-  return <><Nav/><main className="main" style={{maxWidth:1250,margin:'auto'}}>
-    <Link href="/admin" className="subtext">← Voltar ao painel</Link>
+  return <><main className="main" style={{maxWidth:1250,margin:'auto'}}>
+    
     <div className="eyebrow" style={{marginTop:20}}>MOTOR DE OPORTUNIDADES · MODO DE SIMULAÇÃO</div>
     <h1>Classificação, prioridade e distribuição</h1>
     <p className="subtext">O motor processa produtos, identifica nichos, elimina duplicados e calcula a próxima janela teórica. Nenhum anúncio é enviado e nenhuma fila de publicação é criada.</p>
