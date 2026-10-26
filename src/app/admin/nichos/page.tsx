@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { configured, mockNiches } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
 import { saveNiche, toggleNiche } from './actions';
-import { Nav } from '../../../components/Nav';
 export const dynamic = 'force-dynamic';
 type Niche = {id:string;name:string;slug:string;emoji:string;interval_minutes:number;is_active:boolean};
 export default async function NichosPage(){
@@ -13,13 +12,13 @@ export default async function NichosPage(){
   const {data:{user}}=await db.auth.getUser();
   if(!user) redirect('/admin/login');
   const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
-  if(!admin) return <><Nav/><main className="main"><h1>Acesso não autorizado</h1></main></>;
+  if(!admin) return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
   const {data,error}=await db.from('niches').select('id,name,slug,emoji,interval_minutes,is_active').order('name');
   if(error) throw new Error(error.message);
   niches=data||[];
  }
- return <><Nav/><main className="main" style={{maxWidth:1100,margin:'auto'}}>
- <Link href="/admin" className="subtext">← Voltar ao painel</Link>
+ return <><main className="main" style={{maxWidth:1100,margin:'auto'}}>
+ 
  <div className="heading"><div><div className="eyebrow">CADASTROS</div><h1>Nichos e intervalos</h1><p>Configure as categorias e suas frequências. Nenhum disparo é realizado por esta tela.</p></div></div>
  {!configured && <div className="notice">Modo demonstração: os dados abaixo são fictícios. Conecte o Supabase para habilitar alterações.</div>}
  <section className="panel" style={{marginTop:25}}>
