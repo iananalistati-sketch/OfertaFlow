@@ -9,7 +9,7 @@ const schema = z.object({
   name: z.string().trim().min(2).max(80),
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
   emoji: z.string().trim().min(1).max(12),
-  interval_minutes: z.coerce.number().int().min(15).max(1440),
+  interval_minutes: z.coerce.number().int().min(5).max(1440),
   is_active: z.boolean()
 });
 async function adminDb() {
@@ -31,7 +31,7 @@ export async function saveNiche(formData: FormData) {
     interval_minutes: formData.get('interval_minutes'),
     is_active: formData.get('is_active') === 'on'
   });
-  if (!validated.success) throw new Error('Verifique nome, identificador e intervalo (15–1440 min).');
+  if (!validated.success) throw new Error('Verifique nome, identificador e intervalo (5–1440 min).');
   const query = id
     ? db.from('niches').update(validated.data).eq('id',id)
     : db.from('niches').insert(validated.data);
