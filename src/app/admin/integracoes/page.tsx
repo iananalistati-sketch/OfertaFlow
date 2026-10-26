@@ -35,8 +35,15 @@ export default async function IntegracoesPage() {
         <p className="subtext">Conector preparado para futuras credenciais autorizadas. Nenhuma oferta real está sendo importada.</p>
       </section>
       <section className="panel">
-        <h2>Outras plataformas</h2>
-        <p className="subtext">Novas integrações serão incluídas aqui, sem criar menus laterais específicos para cada marketplace.</p>
+        <h2>Mercado Livre</h2>
+        <p><strong>Integração de afiliados não homologada</strong></p>
+        <p className="subtext">O DevCenter permite criar aplicações para a API geral, mas isso não prova acesso à conversão automática de links comissionados. Não importaremos sessões/cookies do navegador.</p>
+        <p className="footnote">A conversão automática dependerá de funcionalidade autorizada pelo programa ou parceiro homologado. A elegibilidade do WhatsApp também precisa ser confirmada.</p>
+      </section>
+      <section className="panel">
+        <h2>Origens de ofertas</h2>
+        <p className="subtext">Registre os grupos de referência e as fontes autorizadas. O motor bloqueará qualquer oferta sem link comissionado da sua conta e canal de distribuição permitido.</p>
+        <Link className="btn outline" href="/admin/origens">Ver origens</Link>
       </section>
     </div>
     <p className="footnote">A existência de uma conta afiliada não comprova liberação da API nem garante comissões. Nenhum envio via WhatsApp é ativado nesta tela.</p>
