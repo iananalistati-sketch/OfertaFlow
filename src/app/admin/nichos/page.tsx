@@ -28,7 +28,7 @@ export default async function NichosPage(){
  <label>Nome<input name="name" placeholder="Ex.: Livros" required minLength={2} maxLength={80} disabled={!configured}/></label>
  <label>Identificador<input name="slug" placeholder="ex.: livros" required pattern="[a-z0-9]+(-[a-z0-9]+)*" disabled={!configured}/></label>
  <label>Emoji<input name="emoji" defaultValue="🏷️" required maxLength={12} disabled={!configured}/></label>
- <label>Intervalo (min)<input name="interval_minutes" type="number" defaultValue={60} min={15} max={1440} disabled={!configured}/></label>
+ <label>Intervalo (min)<input name="interval_minutes" type="number" defaultValue={5} min={5} max={1440} disabled={!configured}/></label>
  <input type="hidden" name="is_active" value="on"/>
  <button type="submit" className="btn primary" disabled={!configured}>Adicionar nicho</button>
  </form></section>
@@ -40,7 +40,7 @@ export default async function NichosPage(){
  <label>Nome<input name="name" defaultValue={n.name} required minLength={2} disabled={!configured}/></label>
  <label>Identificador<input name="slug" defaultValue={n.slug} required pattern="[a-z0-9]+(-[a-z0-9]+)*" disabled={!configured}/></label>
  <label>Emoji<input name="emoji" defaultValue={n.emoji} required maxLength={12} disabled={!configured}/></label>
- <label>Intervalo em minutos<input name="interval_minutes" type="number" min={15} max={1440} defaultValue={n.interval_minutes} disabled={!configured}/></label>
+ <label>Intervalo em minutos<input name="interval_minutes" type="number" min={5} max={1440} defaultValue={n.interval_minutes} disabled={!configured}/></label>
  <label className="consent"><input name="is_active" type="checkbox" defaultChecked={n.is_active} disabled={!configured}/> Nicho ativo</label>
  <button className="btn primary" type="submit" disabled={!configured}>Salvar alterações</button>
  </form>
