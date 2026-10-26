@@ -3,16 +3,16 @@ import { configured, mockNiches } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
 import { saveNiche, toggleNiche, toggleAutoPublish } from './actions';
 export const dynamic = 'force-dynamic';
-type Niche = {id:string;name:string;slug:string;emoji:string;interval_minutes:number;is_active:boolean;auto_publish_enabled:boolean};
+type Niche = {id:string;name:string;slug:string;emoji:string;interval_minutes:number;is_active:boolean;auto_publish_enabled:boolean;keywords:string[]};
 export default async function NichosPage(){
- let niches:Niche[] = mockNiches.map((n,i)=>({id:String(i),name:n.name,slug:n.slug,emoji:n.emoji,interval_minutes:n.interval,is_active:true,auto_publish_enabled:false}));
+ let niches:Niche[] = mockNiches.map((n,i)=>({id:String(i),name:n.name,slug:n.slug,emoji:n.emoji,interval_minutes:n.interval,is_active:true,auto_publish_enabled:false,keywords:[]}));
  if(configured){
   const db=await serverClient();
   const {data:{user}}=await db.auth.getUser();
   if(!user) redirect('/admin/login');
   const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
   if(!admin) return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
-  const {data,error}=await db.from('niches').select('id,name,slug,emoji,interval_minutes,is_active,auto_publish_enabled').order('name');
+  const {data,error}=await db.from('niches').select('id,name,slug,emoji,interval_minutes,is_active,auto_publish_enabled,keywords').order('name');
   if(error) throw new Error(error.message);
   niches=data||[];
  }
@@ -26,6 +26,7 @@ export default async function NichosPage(){
  <label>Nome<input name="name" placeholder="Ex.: Livros" required minLength={2} maxLength={80} disabled={!configured}/></label>
  <label>Identificador<input name="slug" placeholder="ex.: livros" required pattern="[a-z0-9]+(-[a-z0-9]+)*" disabled={!configured}/></label>
  <label>Emoji<input name="emoji" defaultValue="🏷️" required maxLength={12} disabled={!configured}/></label>
+ <label>Palavras-chave (separadas por vírgula)<input name="keywords" placeholder="Ex.: livros, leitura, literatura" disabled={!configured}/></label>
  <label>Intervalo (min)<input name="interval_minutes" type="number" defaultValue={5} min={5} max={1440} disabled={!configured}/></label>
  <input type="hidden" name="is_active" value="on"/>
  <button type="submit" className="btn primary" disabled={!configured}>Adicionar nicho</button>
@@ -38,6 +39,7 @@ export default async function NichosPage(){
  <label>Nome<input name="name" defaultValue={n.name} required minLength={2} disabled={!configured}/></label>
  <label>Identificador<input name="slug" defaultValue={n.slug} required pattern="[a-z0-9]+(-[a-z0-9]+)*" disabled={!configured}/></label>
  <label>Emoji<input name="emoji" defaultValue={n.emoji} required maxLength={12} disabled={!configured}/></label>
+ <label>Palavras-chave<input name="keywords" defaultValue={(n.keywords||[]).join(', ')} placeholder="Ex.: livro, leitura" disabled={!configured}/></label>
  <label>Intervalo em minutos<input name="interval_minutes" type="number" min={5} max={1440} defaultValue={n.interval_minutes} disabled={!configured}/></label>
  <label className="consent"><input name="is_active" type="checkbox" defaultChecked={n.is_active} disabled={!configured}/> Nicho ativo</label>
  <button className="btn primary" type="submit" disabled={!configured}>Salvar alterações</button>
