@@ -47,10 +47,10 @@ for (const invalid of [
 }
 
 const niches = [
-  {slug:'tecnologia',name:'Tecnologia',intervalMinutes:60,isActive:true},
+  {slug:'tecnologia',name:'Tecnologia',intervalMinutes:5,isActive:true},
   {slug:'games',name:'Games',intervalMinutes:60,isActive:true},
   {slug:'casa',name:'Casa',intervalMinutes:60,isActive:true},
-  {slug:'todas-ofertas',name:'Todas as Ofertas',intervalMinutes:30,isActive:true},
+  {slug:'todas-ofertas',name:'Todas as Ofertas',intervalMinutes:5,isActive:true},
   {slug:'inativo',name:'Inativo',intervalMinutes:30,isActive:false},
 ];
 const plan = engine.makeOpportunityPlan([validOffer, repeated], niches, now);
@@ -58,6 +58,7 @@ assert.equal(plan.opportunities.length, 1);
 assert.equal(plan.duplicateCount, 1);
 assert.equal(plan.reviewableCount, 1);
 assert.equal(plan.slots.length, 4);
+assert.ok(plan.slots.every(slot=>slot.intervalMinutes===5));
 assert.equal(plan.slots.find(slot=>slot.niche==='casa').selectedId, null);
 assert.equal(plan.slots.find(slot=>slot.niche==='games').selectedId, 'shopee:prod-1');
 assert.equal(plan.slots.find(slot=>slot.niche==='todas-ofertas').selectedId, 'shopee:prod-1');
