@@ -85,4 +85,15 @@ assert.equal(ranked.opportunities[0].externalId,'vendas-altas');
 assert.ok(ranked.opportunities[0].breakdown.commission>ranked.opportunities[1].breakdown.commission);
 assert.ok(ranked.opportunities[0].breakdown.sales>ranked.opportunities[1].breakdown.sales);
 
+const inviteSource=readFileSync(new URL('../src/lib/groups/invite-validation.ts',import.meta.url),'utf8');
+const inviteCompiled=ts.transpileModule(inviteSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
+const inviteModule=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(inviteCompiled.outputText));
+assert.equal(inviteModule.normalizeGroupInviteLink('  https://chat.whatsapp.com/AaBbCc123?mode=ac_t '),
+ 'https://chat.whatsapp.com/AaBbCc123','Parâmetros de compartilhamento devem ser aceitos.');
+assert.equal(inviteModule.normalizeGroupInviteLink('https://chat.whatsapp.com/AaBbCc123/'),
+ 'https://chat.whatsapp.com/AaBbCc123','Barra final deve ser aceita.');
+assert.equal(inviteModule.normalizeGroupInviteLink(''),null,'Convites opcionais podem ficar vazios.');
+assert.throws(()=>inviteModule.normalizeGroupInviteLink('https://exemplo.com/AaBbCc123'));
+assert.throws(()=>inviteModule.normalizeGroupInviteLink('https://chat.whatsapp.com/'));
+assert.throws(()=>inviteModule.normalizeGroupInviteLink('http://chat.whatsapp.com/AaBbCc123'));
 console.log('✓ Motor e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
