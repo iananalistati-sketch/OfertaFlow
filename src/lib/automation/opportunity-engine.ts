@@ -2,7 +2,7 @@
  * Motor determinístico de preparação de ofertas, independente do provedor.
  * Este módulo NUNCA grava filas, não dispara WhatsApp e não pressupõe comissão.
  */
-export type NicheConfig = { slug: string; name: string; intervalMinutes: number; isActive: boolean };
+export type NicheConfig = { slug: string; name: string; intervalMinutes: number; isActive: boolean; keywords?: string[] };
 export type OpportunityCandidate = {
   provider: 'shopee' | 'aliexpress' | 'manual';
   externalId: string;
@@ -63,12 +63,18 @@ const fresh = (date: string | null, now: number): boolean => {
   return Number.isFinite(timestamp) && timestamp <= now && now - timestamp < 24 * 60 * 60 * 1000;
 };
 
-export function classifyNiches(title: string): string[] {
+export function classifyNiches(title: string, configuredNiches?: NicheConfig[]): string[] {
   const normalized = normalize(title);
   if (!normalized) return [];
-  return Object.entries(nicheTerms)
-    .filter(([, terms]) => terms.some(term => hasTerm(normalized, term)))
-    .map(([slug]) => slug);
+  const termsByNiche = configuredNiches
+    ? configuredNiches.filter(n=>n.isActive && n.slug!=='todas-ofertas')
+        .map(n=>({
+          slug:n.slug,
+          terms:(n.keywords?.length ? n.keywords : nicheTerms[n.slug] || [n.name]),
+        }))
+    : Object.entries(nicheTerms).map(([slug,terms])=>({slug,terms}));
+  return termsByNiche.filter(n=>n.terms.some(term=>hasTerm(normalized,term)))
+    .map(n=>n.slug);
 }
 
 /** A chave só deduplica ofertas com MESMO ID externo e provedor, nunca itens semelhantes de lojas diferentes. */
@@ -99,8 +105,8 @@ export function deduplicateOffers(candidates: OpportunityCandidate[], now = Date
   return { unique: [...unique.values()], removed };
 }
 
-export function evaluateOffer(candidate: OpportunityCandidate, now = Date.now()): Opportunity {
-  const niches = classifyNiches(candidate.title);
+export function evaluateOffer(candidate: OpportunityCandidate, now = Date.now(), configuredNiches?: NicheConfig[]): Opportunity {
+  const niches = classifyNiches(candidate.title, configuredNiches);
   const reasons: string[] = [];
   const image = validHttps(candidate.imageUrl);
   const link = validHttps(candidate.affiliateUrl);
@@ -153,7 +159,7 @@ export function evaluateOffer(candidate: OpportunityCandidate, now = Date.now())
 
 export function makeOpportunityPlan(candidates: OpportunityCandidate[], niches: NicheConfig[], now = Date.now()): OpportunityPlan {
   const { unique, removed } = deduplicateOffers(candidates, now);
-  const opportunities = unique.map(offer => evaluateOffer(offer, now))
+  const opportunities = unique.map(offer => evaluateOffer(offer, now, niches))
     .sort((a, b) => Number(b.reviewable)-Number(a.reviewable) || b.score-a.score || a.id.localeCompare(b.id));
   const active = niches.filter(n => n.isActive && Number.isInteger(n.intervalMinutes) &&
     n.intervalMinutes >= 5 && n.intervalMinutes <= 1440);
