@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { configured, mockNiches } from '../../lib/config';
+import { configured } from '../../lib/config';
 import { serverClient } from '../../lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
