@@ -65,4 +65,23 @@ assert.equal(plan.slots.find(slot=>slot.niche==='todas-ofertas').selectedId, 'sh
 assert.ok(plan.slots.every(slot=>Date.parse(slot.nextSlotAt)>now), 'A janela teórica deve ser futura.');
 assert.ok(plan.slots.every(slot=>!Object.hasOwn(slot,'queueId')), 'Nunca criar fila ou simular envio efetuado.');
 
-console.log('✓ Motor OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
+
+const groupSource=readFileSync(new URL('../src/lib/groups/availability.ts',import.meta.url),'utf8');
+const groupCompiled=ts.transpileModule(groupSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
+const groupEngine=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(groupCompiled.outputText));
+const one={id:'1',niche_id:'n',name:'Grupo 01',invite_url:'https://chat.whatsapp.com/abcdef',
+ is_active:true,is_full:false,member_count:100,capacity_limit:100,created_at:'2026-01-01T00:00:00Z'};
+const two={...one,id:'2',name:'Grupo 02',member_count:20,created_at:'2026-02-01T00:00:00Z'};
+assert.equal(groupEngine.selectInviteGroup([one,two])?.id,'2','Grupo lotado não pode receber novo convite.');
+assert.equal(groupEngine.selectInviteGroup([one]),null,'Não usar link de grupo lotado.');
+assert.equal(groupEngine.selectInviteGroup([{...two,is_active:false}]),null,'Não distribuir grupos desativados.');
+assert.equal(groupEngine.selectInviteGroup([{...two,member_count:null,capacity_limit:null}])?.capacityState,'unknown','Não inventar ocupação quando desconhecida.');
+
+const strong={...validOffer,externalId:'vendas-altas',commissionRate:18,salesCount:120};
+const weak={...validOffer,externalId:'vendas-baixas',commissionRate:2,salesCount:3};
+const ranked=engine.makeOpportunityPlan([weak,strong],niches,now);
+assert.equal(ranked.opportunities[0].externalId,'vendas-altas');
+assert.ok(ranked.opportunities[0].breakdown.commission>ranked.opportunities[1].breakdown.commission);
+assert.ok(ranked.opportunities[0].breakdown.sales>ranked.opportunities[1].breakdown.sales);
+
+console.log('✓ Motor e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
