@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Nav } from '../../../components/Nav';
 import { configured } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
 import { ShopeePreviewSearch } from './ShopeePreviewSearch';
@@ -13,14 +12,14 @@ export default async function ShopeeSetup() {
   const { data: { user } } = await db.auth.getUser();
   if (!user) redirect('/admin/login');
   const { data: admin } = await db.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle();
-  if (!admin) return <><Nav/><main className="main"><h1>Acesso não autorizado</h1></main></>;
+  if (!admin) return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
 
   const hasId = Boolean(process.env.SHOPEE_AFFILIATE_APP_ID?.trim());
   const hasSecret = Boolean(process.env.SHOPEE_AFFILIATE_SECRET?.trim());
   const ready = hasId && hasSecret;
 
-  return <><Nav/><main className="main" style={{maxWidth:1100,margin:'auto'}}>
-    <Link href="/admin" className="subtext">← Voltar ao painel</Link>
+  return <><main className="main" style={{maxWidth:1100,margin:'auto'}}>
+    
     <div className="eyebrow" style={{marginTop:20}}>INTEGRAÇÃO DE AFILIADOS · SHOPEE BRASIL</div>
     <h1>Conectar Shopee e descobrir produtos</h1>
     <p className="subtext">Primeira etapa real da automação: pesquisar ofertas elegíveis da sua própria conta usando credenciais da Open API, sem cadastrar itens manualmente.</p>
