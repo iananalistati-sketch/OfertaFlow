@@ -22,6 +22,7 @@ const validOffer = {
 
 assert.deepEqual(engine.classifyNiches('Mouse gamer Bluetooth'), ['tecnologia','games']);
 assert.deepEqual(engine.classifyNiches('Furadeira e Parafusadeira'), ['casa']);
+assert.deepEqual(engine.classifyNiches('Coleção de literatura', [{slug:'livros',name:'Livros',isActive:true,intervalMinutes:5,keywords:['literatura','leitura']}]),['livros']);
 assert.deepEqual(engine.classifyNiches('Anel dourado decorativo'), [], 'Não fazer falso positivo de palavra parcial.');
 
 const repeated = { ...validOffer, price:70, verifiedAt:null, status:'draft', imageUrl:null };
