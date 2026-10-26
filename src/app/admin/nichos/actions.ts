@@ -9,6 +9,7 @@ const schema = z.object({
   name: z.string().trim().min(2).max(80),
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(80),
   emoji: z.string().trim().min(1).max(12),
+  keywords: z.array(z.string().trim().min(2).max(50)).max(20),
   interval_minutes: z.coerce.number().int().min(5).max(1440),
   is_active: z.boolean()
 });
@@ -28,6 +29,7 @@ export async function saveNiche(formData: FormData) {
     name: formData.get('name'),
     slug: formData.get('slug'),
     emoji: formData.get('emoji'),
+    keywords: String(formData.get('keywords') || '').split(',').map(x=>x.trim()).filter(Boolean),
     interval_minutes: formData.get('interval_minutes'),
     is_active: formData.get('is_active') === 'on'
   });
