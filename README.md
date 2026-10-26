@@ -166,3 +166,22 @@ Em **Grupos WhatsApp**:
 **Limite importante:** criação automática de grupo no WhatsApp e monitoramento de membros dependem de API elegível. Para grupos convencionais, não há uma integração oficial disponível que possamos presumir. A Meta disponibiliza uma Groups API de uso restrito, para contas elegíveis, com grupos pequenos; não confundir com grupos convencionais de ofertas. O sistema registra pendência de expansão, **não afirma criar um grupo real**.
 
 O motor pontua relevância, condições verificadas, comissão elegível e vendas observadas de plataformas autorizadas; faltando dados de vendas/comissões, marca-os como desconhecidos. O acesso à API Shopee permanece pendente.
+
+## Captação por fontes, inspirada no modelo operacional AfiliFlow (26/10/2026)
+
+A direção estratégica mudou de pesquisa de produtos somente via catálogo para um pipeline composto por **origens autorizadas → reconhecimento da oferta → link próprio verificado → score por nicho → fila de envio compatível → métricas**. O objetivo é chegar à mesma proposta funcional, com código, identidade visual e conectores próprios.
+
+**Já disponível:** em `/admin/origens`, registre grupos de origem como referências ou outras fontes permitidas (feed/webhook), escolha o nicho e consulte seu estado. A migração criou `offer_sources` e `captured_offers`, com RLS e bloqueios para ativação sem capacidade verificada. O motor `link-conversion.ts` reconhece links das lojas e só considera uma oferta elegível quando o link comissionado próprio, o preço, a imagem e o canal estiverem comprovados e atualizados. Testes em `npm run automation:test`.
+
+**Não está conectado:** nenhum grupo de WhatsApp está sendo monitorado; o cadastro da referência não lê mensagens. Não há extensão Chrome de conversão de links, geração automática de meli.la, QR Code WhatsApp, monitoramento em tempo real, nem disparo por canal não autorizado.
+
+O AfiliFlow declara usar extensão do Chrome para Mercado Livre/Amazon e QR Code para conexão WhatsApp. Isso **não comprova** que nossa conta possua essas permissões nem que devamos replicar técnicas de sessão sem autorização. Links do Mercado Livre em grupos privados também têm restrições próprias. Conectores só serão habilitados após aprovação técnica e de política.
+
+Para atualizar e conferir:
+```powershell
+git pull origin main
+npm.cmd run typecheck
+npm.cmd run automation:test
+npm.cmd run dev
+```
+Acesse `http://localhost:3000/admin/origens` após entrar como administrador.
