@@ -5,7 +5,7 @@
 .admin-app{align-items:stretch}
 .admin-page{flex:1;min-width:0}
 .admin-page>.main{max-width:1450px;margin:0 auto}
-.admin-sidebar{display:flex;flex-direction:column;flex:0 0 246px;min-width:246px;width:246px;position:sticky;top:0;align-self:flex-start;height:calc(100vh - 1px);max-height:100vh;padding:25px 12px 20px;overflow-y:auto}
+.admin-sidebar{display:flex;flex-direction:column;flex:0 0 246px;min-width:246px;width:246px;position:sticky;top:0;align-self:flex-start;height:calc(100vh - 76px);max-height:calc(100vh - 76px);padding:25px 12px 20px;overflow-y:auto}
 .admin-sidebar .sidehead{padding:8px 12px 20px;color:#9cb1ce}
 .admin-sidebar .side-nav{display:flex;flex-direction:column;gap:4px;align-items:stretch}
 .admin-sidebar .sideitem{display:flex;gap:12px;align-items:center;border-radius:10px;padding:12px 13px;white-space:nowrap;font-weight:600;margin:0;transition:background .15s,color .15s}
