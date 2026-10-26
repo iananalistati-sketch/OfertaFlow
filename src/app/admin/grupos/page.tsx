@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Nav } from '../../../components/Nav';
 import { configured, mockNiches } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
 import { saveGroup, toggleGroup } from './actions';
@@ -15,7 +14,7 @@ export default async function GroupsPage(){
   const {data:{user}}=await db.auth.getUser();
   if(!user) redirect('/admin/login');
   const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
-  if(!admin)return <><Nav/><main className="main"><h1>Acesso não autorizado</h1></main></>;
+  if(!admin)return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
   const [n,g]=await Promise.all([
    db.from('niches').select('id,name,emoji').eq('is_active',true).order('name'),
    db.from('whatsapp_groups').select('id,name,niche_id,invite_url,is_active,auto_publish,channel_verified').order('created_at',{ascending:false})
@@ -24,8 +23,8 @@ export default async function GroupsPage(){
   if(g.error) throw new Error(g.error.message);
   niches=n.data||[];groups=g.data||[];
  }
- return <><Nav/><main className="main" style={{maxWidth:1100,margin:'auto'}}>
- <Link href="/admin" className="subtext">← Voltar ao painel</Link>
+ return <><main className="main" style={{maxWidth:1100,margin:'auto'}}>
+ 
  <div className="heading"><div><div className="eyebrow">WHATSAPP</div><h1>Grupos e convites</h1><p>Vincule grupos aos nichos. Participantes entram voluntariamente por convite; não haverá inclusão ou publicação automática.</p></div></div>
  {!configured&&<div className="notice">Modo demonstração: conecte o Supabase para cadastrar grupos. Nenhum dado é salvo neste modo.</div>}
  <section className="panel" style={{marginTop:25}}>
