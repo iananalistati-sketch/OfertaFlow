@@ -96,4 +96,34 @@ assert.equal(inviteModule.normalizeGroupInviteLink(''),null,'Convites opcionais 
 assert.throws(()=>inviteModule.normalizeGroupInviteLink('https://exemplo.com/AaBbCc123'));
 assert.throws(()=>inviteModule.normalizeGroupInviteLink('https://chat.whatsapp.com/'));
 assert.throws(()=>inviteModule.normalizeGroupInviteLink('http://chat.whatsapp.com/AaBbCc123'));
-console.log('✓ Motor e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
+
+const conversionSource=readFileSync(new URL('../src/lib/automation/link-conversion.ts',import.meta.url),'utf8');
+const conversionCompiled=ts.transpileModule(conversionSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});
+const converter=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(conversionCompiled.outputText));
+assert.equal(converter.identifyMarketplace('https://meli.la/2Z3UTem'),'mercadolivre');
+assert.equal(converter.identifyMarketplace('https://fake-meli.la.evil.example/123'),'unknown');
+assert.equal(converter.identifyMarketplace('javascript:alert(1)'),'unknown');
+assert.equal(converter.identifyMarketplace('https://s.shopee.com.br/abc'),'shopee');
+const converted={
+ marketplace:'mercadolivre',
+ title:'Furadeira de teste',
+ originalUrl:'https://meli.la/abc12',
+ ownerAffiliateUrl:'https://meli.la/meulink',
+ price:129.99,
+ imageUrl:'https://static.example.com/product.jpg',
+ productVerifiedAt:fresh,
+ affiliateLinkVerifiedAt:fresh,
+ affiliateAccountAuthorized:true,
+ destinationAuthorized:true,
+};
+assert.equal(converter.evaluateConversion(converted,now).allowed,true);
+assert.equal(converter.evaluateConversion({...converted,ownerAffiliateUrl:null},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,affiliateAccountAuthorized:false},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,destinationAuthorized:false},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,affiliateLinkVerifiedAt:null},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,originalUrl:'https://evil.example/123'},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,imageUrl:null},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,productVerifiedAt:null},now).allowed,false);
+assert.equal(converter.evaluateConversion({...converted,ownerAffiliateUrl:'https://s.shopee.com.br/abc'},now).allowed,false);
+
+console.log('✓ Motor, captação e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
