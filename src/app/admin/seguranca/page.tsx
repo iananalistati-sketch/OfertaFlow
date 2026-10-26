@@ -1,5 +1,3 @@
-import {LogoutButton} from '../../../components/LogoutButton';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { configured } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
@@ -25,7 +23,7 @@ export default async function AdminSecurityPage() {
       <h2>Criar ou alterar senha</h2>
       <p>Conta: <strong>{user.email}</strong></p>
       <p className="subtext">Recomendamos uma senha única com 12 caracteres ou mais. Ela será protegida pelo Supabase Auth e não será salva em nossos registros de produtos ou campanhas.</p>
-      <PasswordForm /><div style={{marginTop:20}}><LogoutButton/></div>
+      <PasswordForm />
     </section>
     <p className="footnote">Se esquecer a senha, use a opção “Entrar por link de e-mail” na página de login para acessar novamente esta tela e definir outra senha.</p>
   </main></>;
