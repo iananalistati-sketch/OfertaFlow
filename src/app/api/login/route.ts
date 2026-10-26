@@ -16,6 +16,7 @@ export async function POST(request: Request) {
       emailRedirectTo:new URL('/auth/confirm',request.url).toString(),
     },
   });
-  if (error) return NextResponse.json({message:'Se houver um usuário autorizado, você receberá um link de acesso.'});
+  // Mantém a resposta genérica para evitar enumeração de contas, mas registra o código do erro no terminal do servidor.
+  if (error) console.error('[OfertaFlow Auth] Falha no envio de link:', error.code || 'erro_desconhecido');
   return NextResponse.json({message:'Se houver um usuário autorizado, você receberá um link de acesso.'});
 }
