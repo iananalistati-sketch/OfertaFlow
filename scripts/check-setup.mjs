@@ -79,8 +79,13 @@ try {
   if (adminError) {
     fail(`Não foi possível consultar "admin_users" (código: ${adminError.code || 'desconhecido'}).`);
   } else if (!adminCount) {
-    fail('Nenhum administrador cadastrado em admin_users.');
-    console.log('  Crie um usuário em Authentication > Users e vincule o UID conforme docs/SUPABASE_SETUP.md.');
+    fail('O primeiro acesso administrativo ainda não foi confirmado.');
+    console.log('  A conta será autorizada automaticamente após o primeiro login por e-mail.');
+    console.log('  1. Abra http://localhost:3000/admin/login');
+    console.log('  2. Informe o e-mail administrador que já foi autorizado no banco.');
+    console.log('  3. Clique no link recebido e confirme o acesso.');
+    console.log('  4. Execute npm.cmd run setup:check novamente.');
+    console.log('  Não é preciso executar SQL nem setup:apply.');
   } else {
     pass(`Tabela admin_users acessível; ${adminCount} administrador(es) cadastrado(s).`);
   }
