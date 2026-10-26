@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Nav } from '../../../components/Nav';
 import { configured,mockNiches,mockProducts } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
 import { saveAccount,saveProduct } from './actions';
@@ -12,14 +11,14 @@ export default async function CatalogPage(){
  let accounts:Account[]=[];let niches:Niche[]=mockNiches.map((x,i)=>({id:String(i),name:x.name}));let products:Product[]=mockProducts.map(x=>({id:x.id,title:x.title,description:'Produto de demonstração',price:Number(x.price.replace(/[^0-9,]/g,'').replace(',','.')),affiliate_url:null,image_url:null,account_id:null,status:'draft'}));let links:{product_id:string;niche_id:string}[]=[];
  if(configured){
   const db=await serverClient();const {data:{user}}=await db.auth.getUser();if(!user)redirect('/admin/login');
-  const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();if(!admin)return <><Nav/><main className="main"><h1>Acesso não autorizado</h1></main></>;
+  const {data:admin}=await db.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();if(!admin)return <><main className="main"><h1>Acesso não autorizado</h1></main></>;
   const [a,n,p,l]=await Promise.all([db.from('affiliate_accounts').select('id,display_name,provider,status').order('created_at',{ascending:false}),db.from('niches').select('id,name').eq('is_active',true).order('name'),db.from('affiliate_products').select('id,title,description,price,affiliate_url,image_url,account_id,status').order('created_at',{ascending:false}),db.from('product_niches').select('product_id,niche_id')]);
   for(const x of [a,n,p,l])if(x.error)throw Error(x.error.message);
   accounts=a.data||[];niches=n.data||[];products=p.data||[];links=l.data||[];
  }
  const selectStyle={padding:14,borderRadius:9,background:'#0e1729',color:'#fff',border:'1px solid #34415b'};
- return <><Nav/><main className="main" style={{maxWidth:1150,margin:'auto'}}>
- <Link href="/admin" className="subtext">← Voltar ao painel</Link>
+ return <><main className="main" style={{maxWidth:1150,margin:'auto'}}>
+ 
  <div className="heading"><div><div className="eyebrow">CATÁLOGO DE AFILIADOS</div><h1>Plataformas e produtos</h1><p>Cadastre ofertas para preparar campanhas. Não há sincronização nem envio automático nesta versão.</p></div></div>
  {!configured&&<div className="notice">Modo demonstração: conecte o Supabase para salvar contas e produtos.</div>}
  <div className="campaigns" style={{marginTop:25}}>
