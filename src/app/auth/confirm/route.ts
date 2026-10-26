@@ -20,5 +20,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'email' });
     return NextResponse.redirect(new URL(error ? '/admin/login' : '/admin', request.url));
   }
-  return NextResponse.redirect(loginUrl);
+  // Alguns templates antigos enviam a sessão no fragmento #access_token=...
+  // Fragmentos não chegam ao servidor; o navegador concluirá essa variante.
+  return NextResponse.redirect(new URL('/auth/finish', request.url));
 }
