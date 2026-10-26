@@ -58,6 +58,14 @@ Implementação atual: estúdio em `/admin/mensagens` com prévia semelhante ao 
 
 **Distinção explícita:** abrir `wa.me/?text=...` apenas compartilha o **texto** manualmente, não envia a foto. Publicação automática de foto+legenda, sobretudo em grupos comuns, depende de canal aprovado e elegibilidade confirmada; não está ativa. Alternativa de distribuição futura: mensagens de marketing individuais apenas para contatos opt-in, usando templates aprovados da plataforma oficial e respeitando custos, limites e descadastro.
 
+## 5.2. Validação de acesso Shopee Open API — primeiro teste real
+
+Antes de persistir ofertas, o painel `/admin/shopee` disponibiliza consulta **sob demanda** de até 10 produtos via servidor, com autenticação assinada usando `SHOPEE_AFFILIATE_APP_ID` e `SHOPEE_AFFILIATE_SECRET` no ambiente local. O backend não revela chaves, não grava na tabela `affiliate_products` e não cria filas nem envia mensagens. Exibe dados e links retornados pela API **somente quando a API estiver aprovada**. Falhas de permissão, assinatura, schema e rate limit aparecem como diagnóstico controlado.
+
+O modelo de assinatura/consulta está fundamentado em documentação técnica pública de terceiros e depende de validação com a documentação oficial e com as credenciais da própria conta. Não confundir o portal Shopee para afiliados com o programa Open Platform para vendedores.
+
+Sequência: liberar API Shopee → configurar segredo apenas em `.env.local` → consultar amostra real → validar link e condições/termos → implementar persistência idempotente, classificação, checagem de expiração, fila e publicação em canal autorizado.
+
 ## 6. Arquitetura mínima
 
 - **Next.js + TypeScript:** landing page, páginas técnicas e APIs autenticadas.
