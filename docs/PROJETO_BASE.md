@@ -35,12 +35,12 @@ Quando não houver credenciais, elegibilidade, API, link ou canal, apresentar **
 
 | Nicho | Cadência inicial |
 |---|---:|
-| Tecnologia | 60 minutos |
-| Games | 60 minutos |
-| Casa | 60 minutos |
-| Todas as Ofertas | 30 minutos |
+| Tecnologia | 5 minutos |
+| Games | 5 minutos |
+| Casa | 5 minutos |
+| Todas as Ofertas | 5 minutos |
 
-Esses são limites configuráveis de tentativas por destino, **não cotas obrigatórias**. Considerar janelas de horário, disponibilidade, qualidade, duplicidade e políticas do canal. Uma oferta pode ser classificada em vários nichos, mas não repetida indevidamente no mesmo destino. O grupo geral agrega elegíveis de todos os nichos.
+**Revisão de 26/10/2026:** os quatro nichos passam a usar 5 minutos. O intervalo mínimo permitido na configuração do produto é de 5 minutos. Esses são limites configuráveis de tentativas por destino, **não cotas obrigatórias**. Considerar janelas de horário, disponibilidade, qualidade, duplicidade e políticas do canal. Uma oferta pode ser classificada em vários nichos, mas não repetida indevidamente no mesmo destino. O grupo geral agrega elegíveis de todos os nichos.
 
 ## 5. Integrações e requisitos
 
@@ -79,6 +79,12 @@ Enquanto a conta Shopee aguarda a liberação da Open API, implementamos uma cam
 - **Testes:** `npm run automation:test` verifica classificação, duplicação, bloqueio e cadência. O CI também roda `npm run typecheck` e `npm run automation:test` sem credenciais reais.
 
 **Limitação expressa:** score e plano são apenas simulações. Não há fonte Shopee habilitada, worker cron, scoring com resultados reais de comissão ou publicação automatizada. A criação de filas persistentes, auditoria e entrega só ocorrerá depois da validação de provedor e canal autorizado. Não confundir janelas hipotéticas com mensagens programadas.
+
+## 5.4. Navegação administrativa consistente (26/10/2026)
+
+O menu lateral passa a ser a **única navegação principal das telas administrativas**, com links reais para Visão geral, Integração Shopee, Catálogo, Nichos, Grupos, Motor de ofertas, Mensagens e Segurança. Eliminar atalhos duplicados no conteúdo central e o menu lateral decorativo. Em telas estreitas, o menu deve permanecer acessível como navegação horizontal rolável, sem ocultar funcionalidades. O formulário de login não mostra menu administrativo.
+
+A visão geral deve ler os nichos e seus intervalos **reais** do Supabase em vez de exibir cadências fictícias; outros números devem ser claramente rotulados quando forem simulados. O botão “Sair” fica na navegação.
 
 ## 6. Arquitetura mínima
 
