@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 type NicheRow = { slug:string; name:string; interval_minutes:number; is_active:boolean };
 type ProductRow = {
   id:string; external_id:string|null; title:string; source:string; price:number|null;
-  original_price:number|null; image_url:string|null; affiliate_url:string|null;
+  original_price:number|null; commission_rate:number|null; commission_verified_at:string|null; sales_count:number|null; sales_verified_at:string|null; image_url:string|null; affiliate_url:string|null;
   offer_verified_at:string|null; offer_expires_at:string|null; status:string;
 };
 
@@ -41,7 +41,10 @@ function asCandidate(row: ProductRow): OpportunityCandidate {
     verifiedAt: row.offer_verified_at,
     expiresAt: row.offer_expires_at,
     status: row.status === 'ready' ? 'ready' : row.status === 'expired' ? 'expired' : 'draft',
-    commissionRate: null,
+    commissionRate: row.commission_verified_at && Date.now()-Date.parse(row.commission_verified_at)<86400000
+      ? row.commission_rate : null,
+    salesCount: row.sales_verified_at && Date.now()-Date.parse(row.sales_verified_at)<86400000
+      ? row.sales_count : null,
     origin: 'database',
   };
 }
@@ -67,7 +70,7 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
 
   const [nichesResult, productsResult] = await Promise.all([
     db.from('niches').select('slug,name,interval_minutes,is_active').order('name'),
-    db.from('affiliate_products').select('id,external_id,title,source,price,original_price,image_url,affiliate_url,offer_verified_at,offer_expires_at,status')
+    db.from('affiliate_products').select('id,external_id,title,source,price,original_price,commission_rate,commission_verified_at,sales_count,sales_verified_at,image_url,affiliate_url,offer_verified_at,offer_expires_at,status')
       .order('created_at',{ascending:false}).limit(200),
   ]);
   if (nichesResult.error) throw new Error('Falha ao consultar configurações dos nichos: ' + nichesResult.error.message);
@@ -117,7 +120,7 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
     </div>
     <p className="footnote">Cada nicho possui seu próprio intervalo. Um produto pode participar de mais de um nicho e do agregador “Todas as Ofertas”, mas apenas uma vez por destino na mesma janela. Essa tabela não representa mensagens agendadas ou enviadas.</p>
 
-    <div className="sectionrow"><h2>Ofertas ranqueadas</h2><span className="subtext">Score técnico explicável (0–100), não previsão de vendas</span></div>
+    <div className="sectionrow"><h2>Ofertas ranqueadas</h2><span className="subtext">Score explicável (0–100): prioriza ofertas aptas, comissão e vendas observadas quando existirem</span></div>
     <div style={{display:'flex',gap:9,flexWrap:'wrap',marginBottom:18}}>
       <Link className={'btn '+(niche==='todos'?'primary':'outline')} href="/admin/automacao">Todos</Link>
       {niches.filter(n=>n.isActive).map(n=><Link key={n.slug} className={'btn '+(niche===n.slug?'primary':'outline')}
@@ -133,10 +136,10 @@ export default async function AutomationPage({ searchParams }: { searchParams: P
         <p><strong>{o.price && o.price > 0 ? currency.format(o.price) : 'Preço não informado'}</strong></p>
         <p className="subtext">Nichos: {o.niches.length?o.niches.join(', '):'sem categoria específica'}<br/>
           Destinos candidatos: {o.destinations.join(', ')}<br/>
-          Pontuação: relevância {o.breakdown.relevance}, dados {o.breakdown.quality}, atualização {o.breakdown.freshness}, desconto verificado {o.breakdown.savings}, taxa conhecida {o.breakdown.commission}.
+          Pontuação: relevância {o.breakdown.relevance}, dados {o.breakdown.quality}, atualização {o.breakdown.freshness}, desconto {o.breakdown.savings}, comissão reportada {o.breakdown.commission}, vendas observadas {o.breakdown.sales}.
         </p>
         <p style={{color:o.reviewable?'#a7f5d3':'#ffc78d',fontWeight:700}}>
-          {o.reviewable?'✓ Dados aptos à revisão manual — publicação desativada':'🔒 Não publicável'}
+          {o.reviewable?'✓ Oferta apta ao motor — aguardando canal autorizado':'🔒 Não publicável'}
         </p>
         {!o.reviewable && <ul style={{paddingLeft:20,lineHeight:1.6,fontSize:13}}>
           {o.reasons.map(reason=><li key={reason}>{reason}</li>)}
