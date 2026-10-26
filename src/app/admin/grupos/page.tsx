@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { configured, mockNiches } from '../../../lib/config';
 import { serverClient } from '../../../lib/supabase/server';
