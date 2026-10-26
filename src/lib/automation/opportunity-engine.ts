@@ -15,6 +15,7 @@ export type OpportunityCandidate = {
   expiresAt?: string | null;
   status: 'draft' | 'ready' | 'expired';
   commissionRate?: number | null;
+  salesCount?: number | null;
   origin: 'sample' | 'database';
 };
 export type Opportunity = OpportunityCandidate & {
@@ -22,7 +23,7 @@ export type Opportunity = OpportunityCandidate & {
   niches: string[];
   destinations: string[];
   score: number;
-  breakdown: { relevance: number; quality: number; freshness: number; savings: number; commission: number };
+  breakdown: { relevance: number; quality: number; freshness: number; savings: number; commission: number; sales: number };
   reasons: string[];
   reviewable: boolean;
 };
@@ -117,18 +118,26 @@ export function evaluateOffer(candidate: OpportunityCandidate, now = Date.now())
   if (!isFresh) reasons.push('Oferta não verificada nas últimas 24 horas.');
   if (expired) reasons.push('Oferta expirada.');
 
-  // Pontuação heurística de qualidade do cadastro, NÃO de venda ou comissão projetada.
-  const relevance = niches.length ? Math.min(30, 20 + (niches.length - 1) * 10) : 0;
-  const quality = (current ? 5 : 0) + (image ? 10 : 0) + (link ? 5 : 0);
-  const freshness = isFresh ? 20 : 0;
-  const savings = isFresh && current && positive(candidate.originalPrice) && candidate.originalPrice > candidate.price!
-    ? Math.min(15, Math.round((1 - candidate.price! / candidate.originalPrice) * 30))
-    : 0;
-  // Bonus apenas para taxas existentes em dados confiáveis; não inventar taxa.
-  const commission = candidate.origin === 'database' && isFresh &&
-    positive(candidate.commissionRate) ? Math.min(15, Math.round(candidate.commissionRate * 100)) : 0;
-  const breakdown = { relevance, quality, freshness, savings, commission };
-  const score = Object.values(breakdown).reduce((sum, value) => sum + value, 0);
+  // Score de oportunidade baseado APENAS em sinais verificáveis; não é previsão de vendas.
+  const relevance = niches.length ? Math.min(20, 15 + (niches.length-1)*5) : 0;
+  const quality = (current?5:0)+(image?10:0)+(link?5:0);
+  const freshness = isFresh?15:0;
+  const savings = isFresh && current && positive(candidate.originalPrice) &&
+    candidate.originalPrice>candidate.price!
+      ? Math.min(10, Math.round((1-candidate.price!/candidate.originalPrice)*20)) : 0;
+  // Taxa percentual: conectores devem normalizar para pontos percentuais (ex. 12.5 = 12,5%).
+  const rate = candidate.origin==='database' && isFresh && positive(candidate.commissionRate)
+    ? Math.min(100,candidate.commissionRate) : null;
+  const commissionValue = rate!==null && current ? candidate.price!*rate/100 : 0;
+  const commission = rate===null ? 0 : Math.min(20,Math.round(
+    10*Math.min(rate/20,1) + 10*Math.min(commissionValue/50,1)
+  ));
+  // Vendas efetivamente relatadas pelo provedor. Ausência de dado = desconhecido.
+  const sales = candidate.origin==='database' && isFresh &&
+    Number.isInteger(candidate.salesCount) && (candidate.salesCount??-1)>=0
+      ? Math.min(15,Math.round(15*Math.log1p(candidate.salesCount!)/Math.log1p(1000))) : 0;
+  const breakdown = { relevance, quality, freshness, savings, commission, sales };
+  const score = Object.values(breakdown).reduce((sum,value)=>sum+value,0);
   const reviewable = reasons.length === 0;
   return {
     ...candidate,
@@ -145,7 +154,7 @@ export function evaluateOffer(candidate: OpportunityCandidate, now = Date.now())
 export function makeOpportunityPlan(candidates: OpportunityCandidate[], niches: NicheConfig[], now = Date.now()): OpportunityPlan {
   const { unique, removed } = deduplicateOffers(candidates, now);
   const opportunities = unique.map(offer => evaluateOffer(offer, now))
-    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+    .sort((a, b) => Number(b.reviewable)-Number(a.reviewable) || b.score-a.score || a.id.localeCompare(b.id));
   const active = niches.filter(n => n.isActive && Number.isInteger(n.intervalMinutes) &&
     n.intervalMinutes >= 5 && n.intervalMinutes <= 1440);
   const slots: PlannedSlot[] = active.map(niche => {
