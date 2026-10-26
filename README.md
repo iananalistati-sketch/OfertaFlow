@@ -125,7 +125,7 @@ A próxima etapa após a liberação da Open API é consulta real, normalizaçã
 - **Não há envio de mensagens automático** nem criação automática de grupos. O campo `auto_publish` é false e um CHECK exige `channel_verified=true` caso seja habilitado. Isso não substitui a checagem de permissão real do provedor.
 - Adaptadores retornam erro explícito até obter aprovação formal da API Shopee/AliExpress e verificar credenciais/termos por país. Não existe scraping nem endpoints inventados.
 - Produtos, métricas e preços do painel são **exemplos simulados**. Não existem anúncios reais neste pacote.
-- Intervalos: Tecnologia 60 min; Games 60 min; Casa 60 min; Todas as Ofertas 30 min. Estes são parâmetros de banco, **não um job de envio habilitado**.
+- Intervalos: Tecnologia, Games, Casa e Todas as Ofertas: **5 min por nicho**. Estes são parâmetros de banco, **não um job de envio habilitado**.
 
 ## Próximos incrementos
 
@@ -134,3 +134,10 @@ Painel CRUD real para nichos, grupos, ofertas e contas; sincronização de catá
 ## Verificação
 
 `npm run typecheck` / `npm run build`, após instalar dependências. Confira também segurança RLS no Supabase Database Advisors.
+
+
+## Interface administrativa e cadência (26/10/2026)
+
+O painel agora utiliza **um único menu lateral navegável** em todas as telas privadas (no celular, menu horizontal rolável). Os botões redundantes da região central foram removidos. A visão geral consulta indicadores e intervalos reais do Supabase.
+
+Todos os nichos existentes foram alterados para **5 minutos** e o limite mínimo do cadastro, do banco e do motor agora é 5 minutos. A cadência representa uma janela teórica de planejamento, **não uma rotina automática habilitada**. Nenhuma mensagem de WhatsApp é disparada apenas por essa configuração.
