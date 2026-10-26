@@ -147,7 +147,7 @@ export function makeOpportunityPlan(candidates: OpportunityCandidate[], niches: 
   const opportunities = unique.map(offer => evaluateOffer(offer, now))
     .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
   const active = niches.filter(n => n.isActive && Number.isInteger(n.intervalMinutes) &&
-    n.intervalMinutes >= 15 && n.intervalMinutes <= 1440);
+    n.intervalMinutes >= 5 && n.intervalMinutes <= 1440);
   const slots: PlannedSlot[] = active.map(niche => {
     const timeStep = niche.intervalMinutes * 60_000;
     const nextSlotAt = new Date((Math.floor(now / timeStep) + 1) * timeStep).toISOString();
