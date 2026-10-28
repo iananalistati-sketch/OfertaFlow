@@ -76,7 +76,8 @@ export async function activateWebhookSource(_previous:WebhookActionState,form:Fo
    .eq('source_kind','authorized_webhook')
    .select('id').maybeSingle();
  if(error||!data)return {...initialState,error:'Não foi possível habilitar a fonte. Confira seu tipo e as permissões.'};
- revalidatePath('/admin/origens');
+ // Não revalidar a árvore agora: a chave só aparece nesta resposta.
+ // Atualize a página após guardá-la para consultar o estado persistido.
  return {error:null,success:'Fonte habilitada. Salve a chave agora: ela não será exibida novamente. Nenhuma integração externa foi conectada automaticamente.',token};
 }
 
