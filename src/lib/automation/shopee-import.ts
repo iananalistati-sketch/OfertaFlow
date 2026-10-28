@@ -57,7 +57,7 @@ export function prepareShopeeImport(
     if(!offer.externalId || offer.externalId.length>160 ||
       offer.title.trim().length<2 || offer.title.length>300 ||
       !Number.isFinite(offer.price) || offer.price<=0 || offer.price>=10000000 ||
-      !https(offer.affiliateUrl) || !https(offer.imageUrl) ||
+      !https(offer.affiliateUrl) || !offer.imageUrl || !https(offer.imageUrl) ||
       !Number.isFinite(Date.parse(offer.lastCheckedAt))){
       skipped++;continue;
     }
