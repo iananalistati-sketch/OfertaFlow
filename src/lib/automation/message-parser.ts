@@ -89,7 +89,7 @@ export function parseOfferMessage(raw:string):ParsedOfferMessage {
     /\bshopee\b/i.test(text)?'Shopee':
     /\baliexpress\b/i.test(text)?'AliExpress':null;
   const discountPercent=originalPrice && currentPrice && originalPrice>currentPrice
-    ? Math.round((1-currentPrice/originalPrice)*100):null;
+    ? Math.round(((originalPrice-currentPrice)*100)/originalPrice + 1e-9):null;
 
   const warnings:string[]=[];
   if(!title)warnings.push('Descrição do produto não identificada.');
