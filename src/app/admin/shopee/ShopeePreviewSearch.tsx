@@ -18,12 +18,15 @@ export function ShopeePreviewSearch({ enabled }: { enabled: boolean }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [requestError, setRequestError] = useState('');
+  const [importLoading,setImportLoading]=useState(false);
+  const [importStatus,setImportStatus]=useState('');
 
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setResult(null);
     setRequestError('');
+    setImportStatus('');
     try {
       const response = await fetch('/api/admin/shopee-preview', {
         method: 'POST',
@@ -43,9 +46,35 @@ export function ShopeePreviewSearch({ enabled }: { enabled: boolean }) {
       setLoading(false);
     }
   }
+  async function importOffers(){
+    setImportLoading(true);setImportStatus('');
+    try{
+      const response=await fetch('/api/admin/shopee-import',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({keyword:keyword.trim()}),
+        cache:'no-store'
+      });
+      const json=await response.json() as {
+        imported?:number;tagged?:number;skipped?:number;status?:string;
+        error?:string;warning?:string;published?:boolean;
+      };
+      if(!response.ok){
+        setImportStatus(json.error||'Falha ao importar.');
+      }else{
+        setImportStatus(
+          (json.imported||0)+' produto(s) gravado(s) ou atualizado(s); '+
+          (json.tagged||0)+' associação(ões) aos nichos. '+
+          (json.warning||'Todos permanecem como rascunho, sem mensagens enviadas.')
+        );
+      }
+    }catch{
+      setImportStatus('Não foi possível conectar ao servidor.');
+    }finally{setImportLoading(false);}
+  }
   return <section className="panel" style={{marginTop:25}}>
-    <h2>Consultar ofertas reais (teste)</h2>
-    <p className="subtext">A busca usa a Open API autorizada e retorna até oito produtos para revisão. Nenhum registro é salvo e nenhuma mensagem é enviada.</p>
+    <h2>Descobrir e importar ofertas da Shopee</h2>
+    <p className="subtext">A consulta usa a API autorizada e mostra até oito produtos. Quando funcionar, você poderá importar automaticamente esses produtos para o Supabase por palavra-chave, sem cadastrar um por um. A importação não envia mensagens.</p>
     <form onSubmit={search} className="form" style={{marginTop:16}}>
       <label>O que deseja encontrar?
         <input value={keyword} onChange={e => setKeyword(e.target.value)}
@@ -60,7 +89,16 @@ export function ShopeePreviewSearch({ enabled }: { enabled: boolean }) {
     {result && <div style={{marginTop:18}}>
       <p className="subtext" role="status">{result.offers?.length || 0} oferta(s) retornada(s) com imagem, preço e link HTTPS. Consulta realizada em {result.checkedAt ? new Date(result.checkedAt).toLocaleString('pt-BR') : 'horário não disponível'}.</p>
       {!result.offers?.length && <p>Nenhum produto válido retornado. Experimente outra palavra-chave.</p>}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:14}}>
+      <div style={{display:'flex',flexWrap:'wrap',gap:12,alignItems:'center',margin:'15px 0'}}>
+        <button type="button" className="btn primary" onClick={importOffers}
+          disabled={importLoading||!enabled||!(result.offers?.length)}>
+          {importLoading?'Importando produtos...':'Importar ofertas desta busca para o Supabase'}
+        </button>
+        <a href="/admin/automacao" className="btn outline">Ver classificação</a>
+      </div>
+      {importStatus&&<p role="status" className="feedback">{importStatus}</p>}
+      <p className="footnote">Ao importar, o servidor consulta novamente a Shopee; não confia nos preços enviados pelo navegador. Identifica os produtos por conta e ID da loja, atualiza registros existentes e salva rascunhos. Nenhuma campanha ou fila é publicada.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:14}}> 
         {result.offers?.map(offer=><article key={offer.externalId} style={{background:'#0d1425',border:'1px solid #34415b',borderRadius:12,padding:16}}>
           <img src={offer.imageUrl} alt={offer.title} style={{width:'100%',height:175,objectFit:'contain',background:'#fff',borderRadius:8}}/>
           <h3 style={{fontSize:15,lineHeight:1.5}}>{offer.title}</h3>
