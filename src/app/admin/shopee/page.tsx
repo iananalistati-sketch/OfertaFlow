@@ -49,6 +49,6 @@ export default async function ShopeeSetup() {
       <p className="footnote">O Secret da API não é a senha usada para entrar na Shopee. Nunca cole essa chave no chat, no GitHub nem em imagens. O acesso à API depende da aprovação da Shopee.</p>
     </section>
     <ShopeePreviewSearch enabled={ready}/>
-    <p className="footnote">Implementação de testes baseada no protocolo GraphQL/SHA256 documentado publicamente para a Affiliate Open API brasileira; o schema e a liberação devem ser confirmados na sua conta. Próxima entrega após consulta bem-sucedida: salvar ofertas válidas no Supabase com deduplicação, categorização e geração de campanhas.</p>
+    <p className="footnote">Implementação de testes baseada no protocolo GraphQL/SHA256 documentado publicamente para a Affiliate Open API brasileira; o schema e a liberação devem ser confirmados na sua conta. A importação para o Supabase já foi implementada e fica disponível quando sua conta conseguir consultar a API. Ela salva produtos como rascunhos, evita duplicatas e sugere os nichos. Campanhas e envios ao WhatsApp continuam desativados.</p>
   </main></>;
 }
