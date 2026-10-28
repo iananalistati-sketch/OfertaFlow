@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {configured} from '../../../lib/config';
 import {serverClient} from '../../../lib/supabase/server';
@@ -44,6 +45,11 @@ export default async function OrigensPage(){
    <h1>Grupos de origem e fontes</h1>
    <p className="subtext">Fluxo inspirado no modelo de monitoramento de ofertas: identificar a origem, reconhecer produtos e converter os links para a sua conta de afiliado antes de preparar qualquer publicação.</p>
    <div className="notice">As referências de grupos cadastradas aqui NÃO conectam ao WhatsApp nem coletam suas mensagens. A captação automática só será ativada após integração e autorização compatíveis. Nenhuma sessão, cookie ou QR Code é solicitado.</div>
+   <section className="panel" style={{marginTop:18}}>
+     <h2>Laboratório de leitura de ofertas</h2>
+     <p className="subtext">Já temos um leitor que identifica produto, preço, cupom, loja e link a partir do texto de anúncios. Use exemplos anônimos ou cole uma mensagem para conferir a classificação por nicho. Não importa mensagens do WhatsApp nem gera links próprios.</p>
+     <Link className="btn primary" href="/admin/origens/analisar">Testar reconhecimento de ofertas</Link>
+   </section>
    <div className="stats">
      <div className="stat"><span>Origens cadastradas</span><strong>{origins.length}</strong></div>
      <div className="stat"><span>Fontes autorizadas e ligadas</span><strong>{connected.length}</strong></div>
