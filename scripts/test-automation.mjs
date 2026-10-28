@@ -224,7 +224,12 @@ const shopeeImportCompiled=ts.transpileModule(shopeeImportSource,{
   reportDiagnostics:true,
 });
 assert.equal(shopeeImportCompiled.diagnostics.filter(d=>d.category===ts.DiagnosticCategory.Error).length,0);
-const importEngine=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(shopeeImportCompiled.outputText));
+const engineModuleUrl='data:text/javascript;charset=utf-8,'+encodeURIComponent(compiled.outputText);
+const shopeeTestModule=shopeeImportCompiled.outputText.replace(
+  "from './opportunity-engine'",
+  "from '"+engineModuleUrl+"'"
+);
+const importEngine=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(shopeeTestModule));
 const item={
   externalId:'loja1:produto123',title:'Fone Bluetooth com cancelamento de ruído',
   description:'',price:149.90,currency:'BRL',imageUrl:'https://img.example.com/fone.jpg',
