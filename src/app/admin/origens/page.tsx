@@ -3,12 +3,14 @@ import {redirect} from 'next/navigation';
 import {configured} from '../../../lib/config';
 import {serverClient} from '../../../lib/supabase/server';
 import {OriginForm} from './OriginForm';
+import {WebhookControls} from './WebhookControls';
 
 export const dynamic='force-dynamic';
 
 type Origin={
  id:string;display_name:string;source_kind:string;status:string;
  collection_enabled:boolean;capability_verified:boolean;created_at:string;
+ last_received_at:string|null;
  niche_id:string|null
 };
 
@@ -22,10 +24,10 @@ export default async function OrigensPage(){
  if(!admin)return <main className="main"><h1>Acesso não autorizado</h1></main>;
 
  const [sourceResult,nicheResult,capturedResult]=await Promise.all([
-   db.from('offer_sources').select('id,display_name,source_kind,status,collection_enabled,capability_verified,created_at,niche_id')
+   db.from('offer_sources').select('id,display_name,source_kind,status,collection_enabled,capability_verified,created_at,niche_id,last_received_at')
      .order('created_at',{ascending:false}),
    db.from('niches').select('id,name').eq('is_active',true).order('name'),
-   db.from('captured_offers').select('id,conversion_status,marketplace,product_title,created_at')
+   db.from('captured_offers').select('id,source_id,conversion_status,marketplace,product_title,created_at,price,coupon_code,suggested_niches,is_test')
      .order('created_at',{ascending:false}).limit(30),
  ]);
  if(sourceResult.error||nicheResult.error||capturedResult.error)
@@ -53,7 +55,7 @@ export default async function OrigensPage(){
    <div className="stats">
      <div className="stat"><span>Origens cadastradas</span><strong>{origins.length}</strong></div>
      <div className="stat"><span>Fontes autorizadas e ligadas</span><strong>{connected.length}</strong></div>
-     <div className="stat"><span>Ofertas recebidas</span><strong>{items.length}</strong><small>Amostra dos últimos 30 eventos</small></div>
+     <div className="stat"><span>Eventos registrados</span><strong>{items.length}</strong><small>Exibe até 30, incluindo testes</small></div>
      <div className="stat"><span>Publicação automática</span><strong>0</strong><small>Sem conector de envio autorizado</small></div>
    </div>
    <div className="campaigns" style={{marginTop:28}}>
@@ -79,11 +81,29 @@ export default async function OrigensPage(){
      {origins.map(o=><section key={o.id} className="panel">
        <h3>{o.display_name}</h3>
        <p className="subtext">{typeNames[o.source_kind]||o.source_kind}</p>
-       <p><strong>Estado: {o.collection_enabled?'Captação autorizada':'Não conectada'}</strong></p>
+       <p><strong>Estado: {o.collection_enabled?'Webhook habilitado':'Não conectado'}</strong></p>
+       {o.last_received_at&&<p className="subtext">Último evento: {new Date(o.last_received_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}</p>}
+       {o.source_kind==='authorized_webhook'&&<WebhookControls sourceId={o.id} active={o.collection_enabled}/>}
        <p className="footnote">O cadastro não dá acesso às mensagens de um grupo. Habilitação somente após conector autorizado e verificação de capacidade.</p>
      </section>)}
    </div>
    {!origins.length&&<div className="panel">Nenhuma fonte cadastrada. Você pode registrar referências de origem, mas a captação ficará desligada até conectarmos uma fonte autorizada.</div>}
-   <p className="footnote">Este painel registra somente a configuração de origens. Não copia mensagens privadas, dados de participantes ou links de outros afiliados sem autorização.</p>
+   <div className="sectionrow"><h2>Últimos eventos recebidos</h2><span className="subtext">Rascunhos de captação, sem publicação</span></div>
+   <div className="tablewrap">
+    <table>
+      <thead><tr><th>PRODUTO</th><th>MARKETPLACE</th><th>PREÇO ANUNCIADO</th><th>ORIGEM</th><th>ESTADO</th></tr></thead>
+      <tbody>
+        {items.map(item=><tr key={item.id}>
+          <td><strong>{item.product_title}</strong>{item.is_test&&<small>Evento demonstrativo</small>}</td>
+          <td>{item.marketplace}</td>
+          <td>{item.price===null?'Não identificado':new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(item.price))}</td>
+          <td>{origins.find(source=>source.id===item.source_id)?.display_name||'Origem não identificada'}</td>
+          <td>{item.conversion_status==='converted'?'Convertido':item.conversion_status==='blocked'?'Bloqueado':'Aguardando validação'}</td>
+        </tr>)}
+      </tbody>
+    </table>
+   </div>
+   {!items.length&&<p className="subtext">Nenhum evento recebido ainda. Configure uma fonte webhook autorizada e utilize o teste demonstrativo para conferir o fluxo.</p>}
+   <p className="footnote">O endpoint de webhook registra anúncios com status pendente; não lê WhatsApp, não verifica preços ao vivo, não converte links comissionados nem envia mensagens. Fontes experimentais só recebem eventos de integradores autorizados.</p>
  </main>;
 }
