@@ -94,7 +94,7 @@ export async function POST(request:NextRequest){
       return answer({error:'Limite de ingestão por origem atingido (600/hora).'},429);
 
     const {data:niches,error:nicheError}=await db.from('niches')
-      .select('slug,name,interval_minutes,is_active,keywords')
+      .select('id,slug,name,interval_minutes,is_active,keywords')
       .eq('is_active',true);
     if(nicheError)return answer({error:'Falha ao consultar nichos.'},503);
     const configs=(niches||[]).map(n=>({
