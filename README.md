@@ -185,3 +185,13 @@ npm.cmd run automation:test
 npm.cmd run dev
 ```
 Acesse `http://localhost:3000/admin/origens` após entrar como administrador.
+
+## Ingestão de ofertas por webhook autorizado (28/10/2026)
+
+Foi implementado um endpoint real e autenticado, `POST /api/ingest/offers`, para receber automaticamente anúncios de fontes autorizadas, sem cadastrar produto por produto. Cada origem tem token exclusivo rotacionável (hash SHA-256 no Supabase), limites de payload e volume, deduplicação por `event_id`, classificação de nichos e persistência como oferta não verificada. O webhook **não monitora WhatsApp por conta própria**.
+
+No painel `/admin/origens`, cadastre uma fonte do tipo **Webhook de parceiro autorizado**, confirme controle/autorização, gere uma chave temporariamente visível e clique em **Enviar evento demonstrativo à API** para validar a entrada. Atualize a página e consulte os eventos. Nenhum link de terceiro é reutilizado para publicação e nenhum WhatsApp é enviado.
+
+Guia de configuração, integração externa e regras de segurança: [Ingestão autorizada](docs/INGESTAO_AUTORIZADA.md).
+
+Pendente para automação do objetivo final: emissor de eventos proveniente de fonte autorizada, integração aprovada para conversão de links afiliados, confirmação de informações comerciais e provedor de publicação elegível.
