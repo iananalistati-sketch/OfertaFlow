@@ -227,7 +227,7 @@ assert.equal(shopeeImportCompiled.diagnostics.filter(d=>d.category===ts.Diagnost
 const engineModuleUrl='data:text/javascript;charset=utf-8,'+encodeURIComponent(compiled.outputText);
 const shopeeTestModule=shopeeImportCompiled.outputText.replace(
   "from './opportunity-engine'",
-  "from '"+engineModuleUrl+"'"
+  'from '+JSON.stringify(engineModuleUrl)
 );
 const importEngine=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(shopeeTestModule));
 const item={
