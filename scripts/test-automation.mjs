@@ -217,4 +217,36 @@ const multiple=parser.parseOfferMessage('Produto de teste 2 unidades\nPor R$ 129
 assert.equal(multiple.currentPrice,129.90);
 assert.ok(multiple.warnings.some(x=>x.includes('vários links')));
 
-console.log('✓ Motor, captação e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
+
+const shopeeImportSource=readFileSync(new URL('../src/lib/automation/shopee-import.ts',import.meta.url),'utf8');
+const shopeeImportCompiled=ts.transpileModule(shopeeImportSource,{
+  compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},
+  reportDiagnostics:true,
+});
+assert.equal(shopeeImportCompiled.diagnostics.filter(d=>d.category===ts.DiagnosticCategory.Error).length,0);
+const importEngine=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(shopeeImportCompiled.outputText));
+const item={
+  externalId:'loja1:produto123',title:'Fone Bluetooth com cancelamento de ruído',
+  description:'',price:149.90,currency:'BRL',imageUrl:'https://img.example.com/fone.jpg',
+  affiliateUrl:'https://s.shopee.com.br/TESTE',source:'shopee',lastCheckedAt:fresh,commissionRate:0.12
+};
+const sampleImport=importEngine.prepareShopeeImport([item,item,{
+  ...item,externalId:'loja2:produto789',title:'Garrafa Térmica 1L',commissionRate:null
+},
+  {...item,externalId:'sem-imagem',imageUrl:''}
+], 'conta-exemplo', niches);
+assert.equal(sampleImport.rows.length,2,'Produtos inválidos e duplicados não entram no catálogo.');
+assert.equal(sampleImport.duplicates,1);
+assert.equal(sampleImport.skipped,1);
+assert.equal(sampleImport.rows[0].commission_rate,12,'Taxa fracionária da API é normalizada para percentual.');
+assert.equal(sampleImport.rows[0].status,'draft','Importações ficam bloqueadas para publicação.');
+assert.equal(sampleImport.rows[0].original_price,null,'Preço anterior não pode ser inventado.');
+assert.equal(sampleImport.rows[0].coupon_code,null,'Cupom não pode ser inventado.');
+assert.ok(sampleImport.categories.find(c=>c.externalId==='loja1:produto123').slugs.includes('tecnologia'));
+assert.ok(sampleImport.categories.find(c=>c.externalId==='loja1:produto123').slugs.includes('todas-ofertas'));
+assert.equal(importEngine.normalizeCommissionRate(0.08),8);
+assert.equal(importEngine.normalizeCommissionRate(18),18);
+assert.equal(importEngine.normalizeCommissionRate(null),null);
+assert.equal(importEngine.normalizeCommissionRate(101),null);
+
+console.log('✓ Motor, catálogo Shopee, captação e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
