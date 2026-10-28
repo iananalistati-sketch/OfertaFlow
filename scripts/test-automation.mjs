@@ -126,4 +126,95 @@ assert.equal(converter.evaluateConversion({...converted,imageUrl:null},now).allo
 assert.equal(converter.evaluateConversion({...converted,productVerifiedAt:null},now).allowed,false);
 assert.equal(converter.evaluateConversion({...converted,ownerAffiliateUrl:'https://s.shopee.com.br/abc'},now).allowed,false);
 
+
+const parserSource=readFileSync(new URL('../src/lib/automation/message-parser.ts',import.meta.url),'utf8');
+const parserCompiled=ts.transpileModule(parserSource,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},reportDiagnostics:true});
+assert.equal(parserCompiled.diagnostics.filter(d=>d.category===ts.DiagnosticCategory.Error).length,0);
+const parser=await import('data:text/javascript;charset=utf-8,'+encodeURIComponent(parserCompiled.outputText));
+
+// Amostras anonimizadas, baseadas em formatos enviados para referência.
+// São fixtures LOCAIS, sem contatos, nomes de grupos nem links de terceiros ativos.
+const foam=parser.parseOfferMessage([
+ 'TRANSFORME A LAVAGEM EM UM BANHO DE ESPUMA',
+ 'Canhão de Espuma Snow Foam WAP 1L',
+ 'De: R$ 80 | Por: R$34 pix 🔥',
+ 'Utilize o Cupom: APROVEITAMELI',
+ '🛒 Link do Produto',
+ 'https://meli.la/EXEMPLO01',
+].join('\n'));
+assert.equal(foam.title,'Canhão de Espuma Snow Foam WAP 1L');
+assert.equal(foam.originalPrice,80);
+assert.equal(foam.currentPrice,34);
+assert.equal(foam.couponCode,'APROVEITAMELI');
+assert.equal(foam.pixMentioned,true);
+assert.equal(foam.marketplace,'mercadolivre');
+assert.equal(foam.discountPercent,58);
+assert.equal(foam.status,'unverified');
+
+const toolsPromo=parser.parseOfferMessage([
+ 'SUA GARAGEM MERECE ESSE REFORÇO',
+ 'Kit 2 Cavaletes Mecânicos Automotivo Carro Até 2 Ton. Ewald',
+ 'De: R$ 105 | Por: R$68 pix',
+ '⚠️ cupom: PROMOAGORA',
+ 'https://meli.la/EXEMPLO02'
+].join('\n'));
+assert.match(toolsPromo.title,/Cavaletes Mecânicos/);
+assert.equal(toolsPromo.currentPrice,68);
+assert.equal(toolsPromo.couponCode,'PROMOAGORA');
+
+const shoes=parser.parseOfferMessage([
+ 'Tênis Adidas Response Runner 2',
+ 'Por R$246',
+ 'Cupom: BN20',
+ 'Achado na Netshoes',
+ 'https://achlinks.com.br/achados/EXEMPLO01'
+].join('\n'));
+assert.equal(shoes.title,'Tênis Adidas Response Runner 2');
+assert.equal(shoes.currentPrice,246);
+assert.equal(shoes.couponCode,'BN20');
+assert.equal(shoes.marketplace,'unknown','Encurtador de terceiro não comprova marketplace.');
+assert.equal(shoes.mentionedStore,'Netshoes');
+
+const skincare=parser.parseOfferMessage([
+ 'Barrier Cream Dr.Althea 147',
+ 'Por R$113',
+ 'Achado na Amazon',
+ 'https://link.amazon/EXEMPLO'
+].join('\n'));
+assert.equal(skincare.currentPrice,113);
+assert.equal(skincare.mentionedStore,'Amazon');
+assert.equal(skincare.marketplace,'unknown');
+
+const socks=parser.parseOfferMessage([
+ 'MEIA PRA DAR E VENDER',
+ 'Kit com 12 Pares Meia Soquete Cano Curto',
+ 'Por R$24',
+ 'https://meli.la/EXEMPLO03'
+].join('\n'));
+assert.equal(socks.currentPrice,24);
+assert.equal(socks.title,'Kit com 12 Pares Meia Soquete Cano Curto');
+
+const bottle=parser.parseOfferMessage([
+ 'ÁGUA GELADA SEMPRE',
+ 'Loja Oficial Gocase',
+ 'Garrafa Térmica Gocase 500ml',
+ 'De R$ 74 por R$ 67',
+ 'https://meli.la/EXEMPLO04'
+].join('\n'));
+assert.equal(bottle.title,'Garrafa Térmica Gocase 500ml');
+assert.equal(bottle.originalPrice,74);
+assert.equal(bottle.currentPrice,67);
+
+const unsafe=parser.parseOfferMessage('Oferta de fone bluetooth\nPor R$100\nhttps://meli.la.evil.example/trojan');
+assert.equal(unsafe.marketplace,'unknown','Não confiar em domínios parecidos com lojas.');
+assert.equal(unsafe.status,'unverified');
+assert.ok(unsafe.warnings.some(x=>x.includes('Domínio não homologado')));
+const absent=parser.parseOfferMessage('Mensagem sem produto ou preço');
+assert.equal(absent.currentPrice,null);
+assert.equal(absent.productUrl,null);
+assert.equal(absent.status,'unverified');
+const multiple=parser.parseOfferMessage('Produto de teste 2 unidades\nPor R$ 129,90\nhttps://meli.la/A https://meli.la/B');
+assert.equal(multiple.currentPrice,129.90);
+assert.ok(multiple.warnings.some(x=>x.includes('vários links')));
+
 console.log('✓ Motor, captação e convites OfertaFlow: categorização, deduplicação, segurança, score, cadência e ausência de envio.');
